@@ -8,8 +8,13 @@ int main(int argc, char *argv[])
 		printf("ERROR, USAGE: [decode/encode] [~/<filename>.pcap]\n");
 		return EX_USAGE;		
 	}
-	else
+
+	FILE *fp = fopen(argv[1], "rb");
+	if (!fp)
 	{
-		printf("%s\n", argv[1]);
+		printf("Unable to open file!");
+		return EX_USAGE;
 	}
+
+	fclose(fp);
 }
