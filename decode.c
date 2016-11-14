@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	FILE *fp = fopen(argv[1], "rb");
 	if (!fp)
 	{
-		printf("Unable to open file!");
+		printf("Unable to open file!\n");
 		return EX_USAGE;
 	}
 
