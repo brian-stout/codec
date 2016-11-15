@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sysexits.h>
 
-struct pcap_f_header
+struct pcap_global_header
 {
 	unsigned int pcap_identifier;
 	unsigned int maj_version;
@@ -12,14 +12,19 @@ struct pcap_f_header
 	unsigned int link_layer_header_type;
 };
 
-struct pcap_p_header
+struct pcap_packet_header
 {
-
+	unsigned int unix_epoch;
+	unsigned int microseconds;
+	unsigned int size_pcap_file;
+	unsigned int size_pcap_wire;
 };
 
 struct ethernet_frame
 {
-
+	unsigned long long ethernet_destination;
+	unsigned long long ethernet_source;
+	unsigned int ethernet_type;
 };
 
 struct ipv4_header
