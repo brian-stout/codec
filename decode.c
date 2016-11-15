@@ -46,7 +46,10 @@ struct ipv4_header
 
 struct UDP_header
 {
-
+	unsigned int udp_src;
+	unsigned int udp_dst;
+	unsigned int udp_len;
+	unsigned int udp_check;
 };
 
 int
