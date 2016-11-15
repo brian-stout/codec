@@ -52,7 +52,7 @@ struct UDP_header
 	unsigned int udp_check;
 };
 
-struct zerg_eader
+struct zerg_header
 {
 	unsigned int zerg_version;
 	unsigned int zerg_type;
