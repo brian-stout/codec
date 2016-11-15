@@ -29,7 +29,19 @@ struct ethernet_frame
 
 struct ipv4_header
 {
-
+	unsigned int ip_version;
+	unsigned int ip_IHL;
+	unsigned int ip_DSCP;
+	unsigned int ip_ECN;
+	unsigned int ip_total_len;
+	unsigned int ip_id;
+	unsigned int ip_flags;
+	unsigned int ip_frag_offset;
+	unsigned int ip_ttl;
+	unsigned int ip_proto;
+	unsigned int ip_header_check;
+	unsigned int ip_src;
+	unsigned int ip_dst;
 };
 
 struct UDP_header
