@@ -3,8 +3,13 @@
 
 struct pcap_f_header
 {
-
-
+	unsigned int pcap_identifier;
+	unsigned int maj_version;
+	unsigned int min_version;
+	unsigned int timezone;
+	unsigned int accuracy_data;
+	unsigned int pcap_max_length;
+	unsigned int link_layer_header_type;
 };
 
 struct pcap_p_header
