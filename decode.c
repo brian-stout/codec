@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <sysexits.h>
 
 struct pcap_global_header
@@ -29,37 +30,37 @@ struct ethernet_frame
 
 struct ipv4_header
 {
-  unsigned int ip_version : 4;
-  unsigned int ip_IHL : 4;
-  unsigned int ip_DSCP : 6;
-  unsigned int ip_ECN : 2;
-  unsigned int ip_total_len : 16;
-  unsigned int ip_id : 16;
-  unsigned int ip_flags : 3;
-  unsigned int ip_frag_offset : 13;
-  unsigned int ip_ttl : 4;
-  unsigned int ip_proto : 12;
-  unsigned int ip_header_check : 16;
-  unsigned int ip_src : 32;
-  unsigned int ip_dst : 32;
+  unsigned int version : 4;
+  unsigned int IHL : 4;
+  unsigned int DSCP : 6;
+  unsigned int ECN : 2;
+  unsigned int total_len : 16;
+  unsigned int id : 16;
+  unsigned int flags : 3;
+  unsigned int frag_offset : 13;
+  unsigned int ttl : 4;
+  unsigned int proto : 12;
+  unsigned int header_check : 16;
+  unsigned int src : 32;
+  unsigned int dst : 32;
 };
 
 struct UDP_header
 {
-  unsigned int udp_src : 16;
-  unsigned int udp_dst : 16;
-  unsigned int udp_len : 16;
-  unsigned int udp_check : 16;
+  unsigned int urc : 16;
+  unsigned int dst : 16;
+  unsigned int len : 16;
+  unsigned int check : 16;
 };
 
 struct zerg_header
 {
-  unsigned int zerg_version : 2;
-  unsigned int zerg_type : 2;
-  unsigned int zerg_len : 12;
-  unsigned int zerg_src_id : 16;
-  unsigned int zerg_dst_id : 16;
-  unsigned int zerg_seq_id : 32;
+  unsigned int version : 2;
+  unsigned int type : 2;
+  unsigned int len : 12;
+  unsigned int src_id : 16;
+  unsigned int dst_id : 16;
+  unsigned int id : 32;
 };
 
 int
@@ -96,5 +97,5 @@ main (int argc, char *argv[])
 	struct zerg_header zerg_header;
 	fread(&zerg_header, sizeof(struct zerg_header), 1, fp);
 
-  fclose (fp);
+	fclose (fp);
 }
