@@ -23,25 +23,25 @@ struct pcap_packet_header
 struct ethernet_frame
 {
   unsigned long long ethernet_destination : 48;
-  unsigned long long ethernet_source : 48 ;
+  unsigned long long ethernet_source : 48;
   unsigned int ethernet_type : 16;
 };
 
 struct ipv4_header
 {
-  unsigned int ip_version;
-  unsigned int ip_IHL;
-  unsigned int ip_DSCP;
-  unsigned int ip_ECN;
-  unsigned int ip_total_len;
-  unsigned int ip_id;
-  unsigned int ip_flags;
-  unsigned int ip_frag_offset;
-  unsigned int ip_ttl;
-  unsigned int ip_proto;
-  unsigned int ip_header_check;
-  unsigned int ip_src;
-  unsigned int ip_dst;
+  unsigned int ip_version : 4;
+  unsigned int ip_IHL : 4;
+  unsigned int ip_DSCP : 6;
+  unsigned int ip_ECN : 2;
+  unsigned int ip_total_len : 16;
+  unsigned int ip_id : 16;
+  unsigned int ip_flags : 3;
+  unsigned int ip_frag_offset : 13;
+  unsigned int ip_ttl : 4;
+  unsigned int ip_proto : 12;
+  unsigned int ip_header_check : 16;
+  unsigned int ip_src : 32;
+  unsigned int ip_dst : 32;
 };
 
 struct UDP_header
