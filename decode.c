@@ -4,12 +4,12 @@
 
 struct pcap_global_header
 {
-  unsigned int pcap_identifier : 32;
+  unsigned int identifier : 32;
   unsigned int maj_version : 16;
   unsigned int min_version : 16;
   unsigned int timezone : 32;
   unsigned int accuracy_data : 32;
-  unsigned int pcap_max_length : 32;
+  unsigned int max_length : 32;
   unsigned int link_layer_header_type : 32;
 };
 
@@ -17,15 +17,15 @@ struct pcap_packet_header
 {
   unsigned int unix_epoch : 32;
   unsigned int microseconds : 32;
-  unsigned int size_pcap_file : 32;
-  unsigned int size_pcap_wire : 32;
+  unsigned int size_file : 32;
+  unsigned int size_wire : 32;
 };
 
 struct ethernet_frame
 {
-  unsigned long long ethernet_destination : 48;
-  unsigned long long ethernet_source : 48;
-  unsigned int ethernet_type : 16;
+  unsigned long long dst : 48;
+  unsigned long long src : 48;
+  unsigned int type : 16;
 };
 
 struct ipv4_header
