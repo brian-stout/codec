@@ -3,20 +3,20 @@
 struct __attribute__((packed)) pcap_global
 {
   uint32_t identifier : 32;
-  uint16_t maj_version : 16;
-  uint16_t min_version : 16;
+  uint16_t majVersion : 16;
+  uint16_t minVersion : 16;
   uint32_t timezone : 32;
-  uint32_t accuracy_data : 32;
-  uint32_t max_length : 32;
-  uint32_t link_layer_header_type : 32;
+  uint32_t accuracyData : 32;
+  uint32_t maxLength : 32;
+  uint32_t linkLayerHeaderType : 32;
 };
 
 struct pcap_packet
 {
-  uint32_t unix_epoch : 32;
+  uint32_t unixEpoch : 32;
   uint32_t microseconds : 32;
-  uint32_t size_file : 32;
-  uint32_t size_wire : 32;
+  uint32_t sizeFile : 32;
+  uint32_t sizeWire : 32;
 };
 
 struct __attribute__((packed)) ethernet
@@ -33,10 +33,10 @@ struct __attribute__((packed)) ipv4
 {
   uint8_t versionIHL : 8;
   uint8_t DSCP_ECN : 8;
-  uint16_t total_len : 16;
+  uint16_t totalLen : 16;
   uint16_t id : 16;
-  uint16_t flags_fragoffset : 16;
-  uint16_t ttl_proto : 16;
+  uint16_t flagsFragOffset : 16;
+  uint16_t ttlProto : 16;
   uint16_t check : 16;
   uint32_t src : 32;
   uint32_t dst : 32;
@@ -52,8 +52,8 @@ struct udp
 
 struct __attribute__((packed)) zerg
 {
-  uint16_t version_type_len : 16;
-  uint16_t src_id : 16;
-  uint16_t dst_id : 16;
+  uint16_t versionTypeLen : 16;
+  uint16_t srcId : 16;
+  uint16_t dstId : 16;
   uint32_t id : 32;
 };
