@@ -22,9 +22,9 @@ struct pcap_packet_header
 
 struct ethernet_frame
 {
-  unsigned long long ethernet_destination;
-  unsigned long long ethernet_source;
-  unsigned int ethernet_type;
+  unsigned long long ethernet_destination : 48;
+  unsigned long long ethernet_source : 48 ;
+  unsigned int ethernet_type : 16;
 };
 
 struct ipv4_header
