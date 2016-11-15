@@ -54,12 +54,12 @@ struct UDP_header
 
 struct zerg_header
 {
-  unsigned int zerg_version;
-  unsigned int zerg_type;
-  unsigned int zerg_len;
-  unsigned int zerg_src_id;
-  unsigned int zerg_dst_id;
-  unsigned int zerg_seq_id;
+  unsigned int zerg_version : 2;
+  unsigned int zerg_type : 2;
+  unsigned int zerg_len : 12;
+  unsigned int zerg_src_id : 16;
+  unsigned int zerg_dst_id : 16;
+  unsigned int zerg_seq_id : 32;
 };
 
 int
@@ -77,6 +77,8 @@ main (int argc, char *argv[])
       printf ("Unable to open file!\n");
       return EX_USAGE;
     }
+
+	printf("%zd \n", sizeof(pcap_global_header);
 
   fclose (fp);
 }
