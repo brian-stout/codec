@@ -14,10 +14,10 @@ struct pcap_global_header
 
 struct pcap_packet_header
 {
-  unsigned int unix_epoch;
-  unsigned int microseconds;
-  unsigned int size_pcap_file;
-  unsigned int size_pcap_wire;
+  unsigned int unix_epoch : 32;
+  unsigned int microseconds : 32;
+  unsigned int size_pcap_file : 32;
+  unsigned int size_pcap_wire : 32;
 };
 
 struct ethernet_frame
