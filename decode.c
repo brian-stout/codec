@@ -46,10 +46,10 @@ struct ipv4_header
 
 struct UDP_header
 {
-  unsigned int udp_src;
-  unsigned int udp_dst;
-  unsigned int udp_len;
-  unsigned int udp_check;
+  unsigned int udp_src : 16;
+  unsigned int udp_dst : 16;
+  unsigned int udp_len : 16;
+  unsigned int udp_check : 16;
 };
 
 struct zerg_header
