@@ -52,6 +52,16 @@ struct UDP_header
 	unsigned int udp_check;
 };
 
+struct zerg_eader
+{
+	unsigned int zerg_version;
+	unsigned int zerg_type;
+	unsigned int zerg_len;
+	unsigned int zerg_src_id;
+	unsigned int zerg_dst_id;
+	unsigned int zerg_seq_id;
+};
+
 int
 main (int argc, char *argv[])
 {
