@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-struct pcap_global_header
+struct __attribute__((packed)) pcap_global
 {
   uint32_t identifier : 32;
   uint16_t maj_version : 16;
@@ -11,7 +11,7 @@ struct pcap_global_header
   uint32_t link_layer_header_type : 32;
 };
 
-struct pcap_packet_header
+struct pcap_packet
 {
   uint32_t unix_epoch : 32;
   uint32_t microseconds : 32;
@@ -19,43 +19,40 @@ struct pcap_packet_header
   uint32_t size_wire : 32;
 };
 
-struct ethernet_frame
+struct __attribute__((packed)) ethernet
 {
-  uint64_t dst : 48;
-  uint64_t src : 48;
+
+  uint32_t dst : 32;
+  uint16_t dst2 : 16;
+  uint32_t src : 32;
+  uint16_t src2 : 16;
   uint16_t type : 16;
 };
 
-struct ipv4_header
+struct __attribute__((packed)) ipv4
 {
-  uint8_t version : 4;
-  uint8_t int IHL : 4;
-  uint8_t int DSCP : 6;
-  uint8_t int ECN : 2;
+  uint8_t versionIHL : 8;
+  uint8_t DSCP_ECN : 8;
   uint16_t total_len : 16;
   uint16_t id : 16;
-  uint8_t flags : 3;
-  uint16_t frag_offset : 13;
-  uint8_t ttl : 4;
-  uint16_t proto : 12;
-  uint16_t header_check : 16;
+  uint16_t flags_fragoffset : 16;
+  uint16_t ttl_proto : 16;
+  uint16_t check : 16;
   uint32_t src : 32;
   uint32_t dst : 32;
 };
 
-struct UDP_header
+struct udp
 {
-  uint16_t urc : 16;
+  uint16_t src : 16;
   uint16_t dst : 16;
   uint16_t len : 16;
   uint16_t check : 16;
 };
 
-struct zerg_header
+struct __attribute__((packed)) zerg
 {
-  uint8_t version : 2;
-  uint8_t type : 2;
-  uint16_t len : 12;
+  uint16_t version_type_len : 16;
   uint16_t src_id : 16;
   uint16_t dst_id : 16;
   uint32_t id : 32;
