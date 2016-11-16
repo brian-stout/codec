@@ -82,5 +82,4 @@ struct zerg_status
   uint32_t hpArmor: 32;
   uint32_t maxHpType: 32;
   uint32_t speed: 32;
-  char name[64];
 };
