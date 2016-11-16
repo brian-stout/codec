@@ -5,11 +5,11 @@
 
 #include "header.h"
 
-
+/*
 void zerg_cmd_decoder (struct *zerg_cmd, FILE *)
 void zerg_gps_decoder (struct *zerg_gps, FILE *)
 void zerg_status_decoder (struct *zerg_status, FILE *)
-
+*/
 
 int 
 main (int argc, char *argv[])
@@ -99,8 +99,27 @@ main (int argc, char *argv[])
   printf ("%d\n", type);
   printf ("%d\n", version);
 
+  switch(type)
+  {
+    case 0:
+      printf("DEBUG:This is a message payload\n");
+      break;
+    case 1:
+      printf("DEBUG:This is a status payload\n");
+      break;
+    case 2:
+      printf("DEBUG:This is a command payload\n");
+      break;
+    case 3:
+      printf("DEBUG:This is a GPS payload.\n");
+      break;
+    default:
+      printf("Packet corrupt!\n");
+  }
+
 }
 
+/*
 void
 zerg_cmd_decoder (struct *zerg_cmd zerg_cmd, FILE * fp)
 {
@@ -118,3 +137,5 @@ zerg_status_decoder (struct *zerg_status zerg_status, FILE * fp)
 {
 
 }
+
+*/
