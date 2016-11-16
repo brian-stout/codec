@@ -5,11 +5,7 @@
 
 #include "header.h"
 
-/*
-void zerg_cmd_decoder (struct *zerg_cmd, FILE *)
-void zerg_gps_decoder (struct *zerg_gps, FILE *)
-void zerg_status_decoder (struct *zerg_status, FILE *)
-*/
+uint64_t ntohll(uint64_t i);
 
 int 
 main (int argc, char *argv[])
@@ -52,10 +48,10 @@ main (int argc, char *argv[])
   printf ("%d\n", type);
   printf ("%d\n", version);
 
-  char zerg_message[64];
-  struct zerg_cmd zerg_cmd;
+  //char zerg_message[64];
+  //struct zerg_cmd zerg_cmd;
   struct zerg_gps zerg_gps;
-  struct zerg_status zerg_status;
+  //struct zerg_status zerg_status;
 
   switch(type)
   {
@@ -70,6 +66,13 @@ main (int argc, char *argv[])
       break;
     case 3:
       printf("DEBUG:This is a GPS payload.\n");
+      fread (&zerg_gps, sizeof(struct zerg_gps), 1, fp);
+      printf("debug: %lx\n", ntohll(zerg_gps.longitude));
+      printf("debug: %lx\n", ntohll(zerg_gps.latitude));
+      printf("debug: %x\n", ntohl(zerg_gps.altitude));
+      printf("debug: %x\n", ntohl(zerg_gps.bearing));
+      printf("debug: %x\n", ntohl(zerg_gps.speed));
+      printf("debug: %x\n", ntohl(zerg_gps.accuracy));
       break;
     default:
       printf("Packet corrupt!\n");
@@ -80,23 +83,15 @@ main (int argc, char *argv[])
 
 }
 
-/*
-void
-zerg_cmd_decoder (struct *zerg_cmd zerg_cmd, FILE * fp)
+uint64_t ntohll(uint64_t i)
 {
-
+  uint32_t a;
+  uint32_t b;
+  uint64_t r = 0;
+  a = i >> 32;
+  b = i;
+  r = r | ntohl(b);
+  r = r << 32;
+  r = r | ntohl(a);
+  return r;
 }
-
-void
-zerg_gps_decoder (struct *zerg_gps zerg_gps, FILE * fp)
-{
-
-}
-
-void
-zerg_status_decoder (struct *zerg_status zerg_status, FILE * fp)
-{
-
-}
-
-*/
