@@ -5,10 +5,13 @@
 
 #include "header.h"
 
-void
-zerg_cmd_decoder (struct *zerg_cmd z, FILE * fp, type)
 
-int
+void zerg_cmd_decoder (struct *zerg_cmd, FILE *)
+void zerg_gps_decoder (struct *zerg_gps, FILE *)
+void zerg_status_decoder (struct *zerg_status, FILE *)
+
+
+int 
 main (int argc, char *argv[])
 {
   if (argc != 2)
@@ -87,7 +90,6 @@ main (int argc, char *argv[])
   printf ("src_id %x\n", zerg.srcId);
   printf ("dst_id %x\n", zerg.dstId);
   printf ("id %x\n", zerg.id);
-
   //End of debug lines//
 
   printf ("%d\n", zerg.versionType);
@@ -101,6 +103,18 @@ main (int argc, char *argv[])
 
 void
 zerg_cmd_decoder (struct *zerg_cmd zerg_cmd, FILE * fp)
+{
+
+}
+
+void
+zerg_gps_decoder (struct *zerg_gps zerg_gps, FILE * fp)
+{
+
+}
+
+void
+zerg_status_decoder (struct *zerg_status zerg_status, FILE * fp)
 {
 
 }
