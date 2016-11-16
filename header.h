@@ -52,8 +52,17 @@ struct udp
 
 struct __attribute__ ((packed)) zerg
 {
-  uint16_t versionTypeLen:16;
+  uint8_t versionType:8;
+  uint8_t len1:8;
+  uint16_t len2:16; 
   uint16_t srcId:16;
   uint16_t dstId:16;
   uint32_t id:32;
+};
+
+struct zerg_cmd
+{
+  uint16_t command: 16;
+  uint16_t parameter1: 16;
+  uint16_t parameter2: 32;  
 };
