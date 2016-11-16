@@ -39,6 +39,10 @@ main (int argc, char *argv[])
 	struct zerg zerg;
 	fread(&zerg, sizeof(struct zerg), 1, fp);
 
+	//File closed because data has all been read at this point
+	fclose (fp);
+
+	//Start of debug lines//
 	printf("pcap indetifier %x\n", pcap_global.identifier);
 	printf("pcap maj vs %x\n", pcap_global.majVersion);
 	printf("pcap min %x\n", pcap_global.minVersion);
@@ -74,10 +78,20 @@ main (int argc, char *argv[])
 	printf("UDP len %x\n", ntohs(udp.len));
 	printf("UDP check %x\n", ntohs(udp.check));
 
-	printf("zerg version %x\n", zerg.versionTypeLen);
+	printf("zerg version %x\n", zerg.versionType);
+	printf("Len part 1 %x\n", zerg.len1);
+	printf("Len part 2 %x\n", zerg.len2);
 	printf("src_id %x\n", zerg.srcId);
 	printf("dst_id %x\n", zerg.dstId);
 	printf("id %x\n", zerg.id);
 
-	fclose (fp);
+	//End of debug lines//
+
+	printf("%d\n", zerg.versionType);
+	int type = zerg.versionType & 0xf;
+	int version = zerg.versionType >> 4;
+
+	printf("%d\n", type);
+	printf("%d\n", version);
+
 }
