@@ -40,7 +40,7 @@ main (int argc, char *argv[])
 
   struct zerg zerg;
   fread (&zerg, sizeof (struct zerg), 1, fp);
-
+  
   printf ("%d\n", zerg.versionType);
   int type = zerg.versionType & 0xf;
   int version = zerg.versionType >> 4;
@@ -95,3 +95,5 @@ uint64_t ntohll(uint64_t i)
   r = r | ntohl(a);
   return r;
 }
+
+
