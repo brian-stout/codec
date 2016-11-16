@@ -57,7 +57,7 @@ struct __attribute__ ((packed)) zerg
   uint16_t len2:16; 
   uint16_t srcId:16;
   uint16_t dstId:16;
-  uint32_t id:32;
+  uint32_t id:32
 };
 
 struct zerg_cmd
@@ -65,4 +65,13 @@ struct zerg_cmd
   uint16_t command: 16;
   uint16_t parameter1: 16;
   uint16_t parameter2: 32;  
+};
+
+struct zerg_gps
+{
+  uint64_t longitude: 64;
+  uint64_t latitude: 64;
+  uint32_t altitude: 32;
+  uint32_t bearing: 32;
+  uint32_t speed: 32;
 };
