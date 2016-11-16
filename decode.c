@@ -5,6 +5,9 @@
 
 #include "header.h"
 
+void
+zerg_cmd_decoder (struct *zerg_cmd z, FILE * fp, type)
+
 int
 main (int argc, char *argv[])
 {
@@ -93,5 +96,11 @@ main (int argc, char *argv[])
 
   printf ("%d\n", type);
   printf ("%d\n", version);
+
+}
+
+void
+zerg_cmd_decoder (struct *zerg_cmd zerg_cmd, FILE * fp)
+{
 
 }
