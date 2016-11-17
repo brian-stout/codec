@@ -17,6 +17,8 @@ double btod(uint64_t);
 
 void print_gps(struct zerg_gps);
 
+void print_status(struct zerg_status);
+
 enum
 {
     //Size of zerg_packet header minus the pay load
@@ -103,6 +105,7 @@ main(int argc, char *argv[])
         fread(zerg_string, zerg_payload, 1, fp);
         zerg_string[zerg_payload] = '\0';
         printf("%s\n", zerg_string);
+        print_status(zerg_status);
         break;
     case 2:
         fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
@@ -131,6 +134,7 @@ main(int argc, char *argv[])
 uint64_t
 ntohll(uint64_t i)
 {
+    //TODO: Save a few lines by removing an unnessecary variable
     uint32_t a;
     uint32_t b;
     uint64_t r = 0;
@@ -156,6 +160,7 @@ ntoh24(uint32_t i)
     return i;
 }
 
+
 //Solution adapted from http://stackoverflow.com/a/28884902
 //Credit to user Antoine L 
 float btof(uint32_t a)
@@ -174,16 +179,26 @@ double btod(uint64_t a)
 
 void print_gps(struct zerg_gps zerg_gps)
 {
-        double longitude = btod(ntohll(zerg_gps.longitude));
-        double latitude = btod(ntohll(zerg_gps.latitude));
-        float altitude = btof(ntohl(zerg_gps.altitude));
-        float bearing = btof(ntohl(zerg_gps.bearing));
-        float speed = btof(ntohl(zerg_gps.speed));
-        float accuracy = btof(ntohl(zerg_gps.accuracy));
-        printf("debug %lf\n", longitude);
-        printf("debug %lf\n", latitude);
-        printf("debug %f\n", altitude);
-        printf("debug %f\n", bearing);
-        printf("debug %f\n", speed);
-        printf("debug %f\n", accuracy);
+    double longitude = btod(ntohll(zerg_gps.longitude));
+    double latitude = btod(ntohll(zerg_gps.latitude));
+    float altitude = btof(ntohl(zerg_gps.altitude));
+    float bearing = btof(ntohl(zerg_gps.bearing));
+    float speed = btof(ntohl(zerg_gps.speed));
+    float accuracy = btof(ntohl(zerg_gps.accuracy));
+    printf("debug %lf\n", longitude);
+    printf("debug %lf\n", latitude);
+    printf("debug %f\n", altitude);
+    printf("debug %f\n", bearing);
+    printf("debug %f\n", speed);
+    printf("debug %f\n", accuracy);
+}
+
+void print_status(struct zerg_status zerg_status)
+{
+    int hp = ntoh24(zerg_status.hp);
+    int maxHp = ntoh24(zerg_status.maxHp);
+    printf("HP      : %d/%d\n", hp, maxHp);
+    printf("Type    : %s\n", breed[zerg_status.type]);
+    printf("Armor   : %d\n", zerg_status.armor);
+    printf("Speed   : %f\n", btof(ntohl(zerg_status.speed)));
 }
