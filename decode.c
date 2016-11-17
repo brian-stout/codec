@@ -11,6 +11,10 @@ uint64_t ntohll(uint64_t i);
 
 uint32_t ntoh24(uint32_t i);
 
+float btof(uint32_t a);
+
+double btod(uint64_t a);
+
 enum
 {
     //Size of zerg_packet header minus the pay load
@@ -114,12 +118,18 @@ main(int argc, char *argv[])
     case 3:
         printf("DEBUG:This is a GPS payload.\n");
         fread(&zerg_gps, sizeof(struct zerg_gps), 1, fp);
-        printf("debug: %lx\n", ntohll(zerg_gps.longitude));
-        printf("debug: %lx\n", ntohll(zerg_gps.latitude));
-        printf("debug: %x\n", ntohl(zerg_gps.altitude));
-        printf("debug: %x\n", ntohl(zerg_gps.bearing));
-        printf("debug: %x\n", ntohl(zerg_gps.speed));
-        printf("debug: %x\n", ntohl(zerg_gps.accuracy));
+        double longitude = btod(ntohll(zerg_gps.longitude));
+        double latitude = btod(ntohll(zerg_gps.latitude));
+        float altitude = btof(ntohl(zerg_gps.altitude));
+        float bearing = btof(ntohl(zerg_gps.bearing));
+        float speed = btof(ntohl(zerg_gps.speed));
+        float accuracy = btof(ntohl(zerg_gps.accuracy));
+        printf("debug %lf\n", longitude);
+        printf("debug %lf\n", latitude);
+        printf("debug %f\n", altitude);
+        printf("debug %f\n", bearing);
+        printf("debug %f\n", speed);
+        printf("debug %f\n", accuracy);
         break;
     default:
         printf("Packet corrupt!\n");
@@ -161,4 +171,20 @@ ntoh24(uint32_t i)
     i = i | a;
 
     return i;
+}
+
+//Solution adapted from http://stackoverflow.com/a/28884902
+//Credit to user Antoine L 
+float btof(uint32_t a)
+{
+        union { uint32_t b; float f; } u;
+        u.b = a;
+        return u.f;
+}
+
+double btod(uint64_t a)
+{
+        union { uint64_t b; double d; } u;
+        u.b = a;
+        return u.d;
 }
