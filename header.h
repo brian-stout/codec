@@ -84,3 +84,10 @@ struct zerg_status
     uint8_t type:8;
     uint32_t speed:32;
 };
+
+const char *breed[] = {
+	"Overmind", "Larva", "Cerebrate", "Overlord",
+	"Queen", "Drone", "Zergling", "Lurker",
+	"Broodling", "Hydralisk", "Guardian", "Scourge",
+	"Ultralisk", "Mutalisk", "Defiler", "Devourer"
+};
