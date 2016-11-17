@@ -19,6 +19,8 @@ void print_gps(struct zerg_gps);
 
 void print_status(struct zerg_status);
 
+void print_cmd(struct zerg_cmd);
+
 enum
 {
     //Size of zerg_packet header minus the pay load
@@ -109,9 +111,7 @@ main(int argc, char *argv[])
         break;
     case 2:
         fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
-        printf("debug: %s\n", command[ntohs(zerg_cmd.cmdNum)]);
-        printf("debug: %x\n", ntohs(zerg_cmd.param1));
-        printf("debug: %x\n", ntohl(zerg_cmd.param2));
+        print_cmd(zerg_cmd);
         break;
     case 3:
         fread(&zerg_gps, sizeof(struct zerg_gps), 1, fp);
@@ -219,4 +219,11 @@ void print_status(struct zerg_status zerg_status)
     printf("Type    : %s\n", breed[zerg_status.type]);
     printf("Armor   : %d\n", zerg_status.armor);
     printf("Speed   : %f\n", btof(ntohl(zerg_status.speed)));
+}
+
+void print_cmd(struct zerg_cmd zerg_cmd)
+{
+    printf("debug: %s\n", command[ntohs(zerg_cmd.cmdNum)]);
+    printf("debug: %x\n", ntohs(zerg_cmd.param1));
+    printf("debug: %x\n", ntohl(zerg_cmd.param2));
 }
