@@ -240,7 +240,16 @@ void print_cmd(struct zerg_cmd zerg_cmd)
             printf("%d meters away\n", (unsigned int)ntohs(zerg_cmd.param2));
             break;
         case 5:
-            printf("Command  : %s", command[cmd]);
+            printf("Command  : %s ", command[cmd]);
+            printf("%d ", ntohl(zerg_cmd.param2));
+            if (ntohs(zerg_cmd.param1))
+            {
+                printf("TRUE\n");
+            }
+            else
+            {
+                printf("FALSE\n");
+            }
             break;
         case 7:
             printf("Command  : %s", command[cmd]);
