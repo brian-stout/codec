@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <sysexits.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "header.h"
 
@@ -52,22 +54,25 @@ main(int argc, char *argv[])
     struct zerg zerg;
     fread(&zerg, sizeof(struct zerg), 1, fp);
 
-    printf("%d\n", zerg.versionType);
     int type = zerg.versionType & 0xf;
-    int version = zerg.versionType >> 4;
+    //int version = zerg.versionType >> 4;
 
-    printf("%d\n", ntoh24(zerg.len));
+    int zerg_payload = ntoh24(zerg.len) - zerg_packet;
 
-    //char zerg_message[64];
+    char *zerg_string;
     //struct zerg_cmd zerg_cmd;
     struct zerg_gps zerg_gps;
-
     //struct zerg_status zerg_status;
 
     switch (type)
     {
     case 0:
-        printf("DEBUG:This is a message payload\n");
+        //sets asside memory for the amount of expected characters
+        zerg_string = malloc((zerg_payload + 1) * sizeof(char));
+        fread(zerg_string, zerg_payload, 1, fp);
+        //Sets the extra char space to null so string is null terminated
+        zerg_string[zerg_payload] = '\0';
+        printf("%s\n", zerg_string);
         break;
     case 1:
         printf("DEBUG:This is a status payload\n");
