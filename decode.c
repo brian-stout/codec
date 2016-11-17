@@ -252,7 +252,8 @@ void print_cmd(struct zerg_cmd zerg_cmd)
             }
             break;
         case 7:
-            printf("Command  : %s", command[cmd]);
+            printf("Command  : %s ", command[cmd]);
+            printf("sequence %d\n", ntohl(zerg_cmd.param2));
             break;
         default:
             break;    
