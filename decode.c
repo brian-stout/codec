@@ -7,9 +7,14 @@
 
 uint64_t ntohll(uint64_t i);
 
+uint32_t ntoh24(uint32_t i);
+
 enum
 {
-    packet_length = 448
+    //Size of zerg_packet header minus the pay load
+    //Used to read correct size from packets with non-static
+    //packet lengths
+    zerg_packet = 12
 };
 
 int
@@ -51,9 +56,7 @@ main(int argc, char *argv[])
     int type = zerg.versionType & 0xf;
     int version = zerg.versionType >> 4;
 
-    printf("DEBUG: size of file %x\n", ntohl(pcap_packet.sizeFile));
-    printf("%d\n", type);
-    printf("%d\n", version);
+    printf("%d\n", ntoh24(zerg.len));
 
     //char zerg_message[64];
     //struct zerg_cmd zerg_cmd;
@@ -85,7 +88,6 @@ main(int argc, char *argv[])
     default:
         printf("Packet corrupt!\n");
     }
-    printf("%d\n", packet_length);
     //File closed because data has all been read at this point
     fclose(fp);
 
@@ -104,4 +106,16 @@ ntohll(uint64_t i)
     r = r << 32;
     r = r | ntohl(a);
     return r;
+}
+
+uint32_t
+ntoh24(uint32_t i)
+{
+  uint32_t a = i & 0xffff;
+  a = ntohs(a);
+  a <<= 8;
+  i >>= 16;
+  i = i | a;
+  
+  return i;
 }
