@@ -61,9 +61,14 @@ struct __attribute__ ((packed)) zerg
 
 struct zerg_cmd
 {
-    uint16_t cmd:16;
+    uint16_t cmdNum:16;
     uint16_t param1:16;
     uint32_t param2:32;
+};
+
+const char *command[] = {
+    "GET_STATUS", "GOTO", "GET_GPS", "RESERVED",
+    "RETURN", "SET_GROUP", "STOP", "REPEAT"
 };
 
 struct zerg_gps
