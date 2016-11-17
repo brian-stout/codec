@@ -104,7 +104,7 @@ main(int argc, char *argv[])
         fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
         fread(zerg_string, zerg_payload, 1, fp);
         zerg_string[zerg_payload] = '\0';
-        printf("%s\n", zerg_string);
+        printf("Name    : %s\n", zerg_string);
         print_status(zerg_status);
         break;
     case 2:
