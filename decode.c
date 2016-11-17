@@ -111,7 +111,7 @@ main(int argc, char *argv[])
         break;
     case 2:
         fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
-        printf("debug: %x\n", ntohs(zerg_cmd.cmd));
+        printf("debug: %s\n", command[ntohs(zerg_cmd.cmdNum)]);
         printf("debug: %x\n", ntohs(zerg_cmd.param1));
         printf("debug: %x\n", ntohl(zerg_cmd.param2));
         break;
