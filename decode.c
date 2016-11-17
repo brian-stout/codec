@@ -55,10 +55,12 @@ main(int argc, char *argv[])
     fread(&zerg, sizeof(struct zerg), 1, fp);
 
     int type = zerg.versionType & 0xf;
+
     //int version = zerg.versionType >> 4;
 
     //TODO: Put in function
     int zerg_payload = 0;
+
     if (type == 0)
     {
         zerg_payload = ntoh24(zerg.len) - zerg_packet;
@@ -66,14 +68,15 @@ main(int argc, char *argv[])
     else if (type == 1)
     {
         /*the size of the status payload minus the zerg_name
-            happens to be the same size as the zerg_header packet
-            minus the payload, so multiply twice */
+         * happens to be the same size as the zerg_header packet
+         * minus the payload, so multiply twice */
         //TODO: enum zerg_status in case it changes later
         zerg_payload = ntoh24(zerg.len) - zerg_packet * 2;
     }
 
     //Always malloc zerg_string to avoid freeing nonexistent memory
-    char * zerg_string;
+    char *zerg_string;
+
     zerg_string = malloc((zerg_payload + 1) * sizeof(char));
 
     //struct zerg_cmd zerg_cmd;
@@ -142,11 +145,12 @@ ntohll(uint64_t i)
 uint32_t
 ntoh24(uint32_t i)
 {
-  uint32_t a = i & 0xffff;
-  a = ntohs(a);
-  a <<= 8;
-  i >>= 16;
-  i = i | a;
-  
-  return i;
+    uint32_t a = i & 0xffff;
+
+    a = ntohs(a);
+    a <<= 8;
+    i >>= 16;
+    i = i | a;
+
+    return i;
 }
