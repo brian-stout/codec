@@ -179,18 +179,36 @@ double btod(uint64_t a)
 
 void print_gps(struct zerg_gps zerg_gps)
 {
-    double longitude = btod(ntohll(zerg_gps.longitude));
+    char direction = ' ';
+
     double latitude = btod(ntohll(zerg_gps.latitude));
-    float altitude = btof(ntohl(zerg_gps.altitude));
-    float bearing = btof(ntohl(zerg_gps.bearing));
-    float speed = btof(ntohl(zerg_gps.speed));
-    float accuracy = btof(ntohl(zerg_gps.accuracy));
-    printf("debug %lf\n", longitude);
-    printf("debug %lf\n", latitude);
-    printf("debug %f\n", altitude);
-    printf("debug %f\n", bearing);
-    printf("debug %f\n", speed);
-    printf("debug %f\n", accuracy);
+    if (latitude > 0)
+    {
+        direction = 'N' ;
+    }
+    else if (latitude < 0)
+    {
+        direction = 'S';
+        latitude *= -1;
+    }
+    printf("Latitude    : %lf deg. %c\n", latitude, direction);
+
+    double longitude = btod(ntohll(zerg_gps.longitude));
+    if (longitude > 0)
+    {
+        direction = 'E' ;
+    }
+    else if (longitude < 0)
+    {
+        direction = 'W';
+        longitude *= -1;
+    }
+    printf("Longitude   : %lf deg. %c\n", longitude, direction);
+
+    printf("Altitude    : %.1fm\n", btof(ntohl(zerg_gps.altitude)) * 1.8288);
+    printf("Bearing     : %f deg.\n", btof(ntohl(zerg_gps.bearing)));
+    printf("Speed       : %f m/s\n", btof(ntohl(zerg_gps.speed)));
+    printf("Accuracy    : %.0fm\n", btof(ntohl(zerg_gps.accuracy)));
 }
 
 void print_status(struct zerg_status zerg_status)
