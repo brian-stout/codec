@@ -21,6 +21,8 @@ void print_status(struct zerg_status);
 
 void print_cmd(struct zerg_cmd);
 
+void print_preface(struct zerg, int);
+
 enum
 {
     //Size of zerg_packet header minus the pay load
@@ -64,12 +66,12 @@ main(int argc, char *argv[])
     struct zerg zerg;
     fread(&zerg, sizeof(struct zerg), 1, fp);
 
-    int type = zerg.versionType & 0xf;
-
-    //int version = zerg.versionType >> 4;
-
     //TODO: Put in function
     int zerg_payload = 0;
+
+    int type = zerg.versionType & 0xf;
+    int version = zerg.versionType >> 4;
+    print_preface(zerg, version);
 
     if (type == 0)
     {
@@ -94,6 +96,8 @@ main(int argc, char *argv[])
     struct zerg_gps zerg_gps;
     struct zerg_status zerg_status;
 
+
+
     switch (type)
     {
     case 0:
@@ -106,7 +110,7 @@ main(int argc, char *argv[])
         fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
         fread(zerg_string, zerg_payload, 1, fp);
         zerg_string[zerg_payload] = '\0';
-        printf("Name    : %s\n", zerg_string);
+        printf("Name     : %s\n", zerg_string);
         print_status(zerg_status);
         break;
     case 2:
@@ -191,7 +195,7 @@ void print_gps(struct zerg_gps zerg_gps)
         direction = 'S';
         latitude *= -1;
     }
-    printf("Latitude    : %lf deg. %c\n", latitude, direction);
+    printf("Latitude : %lf deg. %c\n", latitude, direction);
 
     double longitude = btod(ntohll(zerg_gps.longitude));
     if (longitude > 0)
@@ -203,22 +207,22 @@ void print_gps(struct zerg_gps zerg_gps)
         direction = 'W';
         longitude *= -1;
     }
-    printf("Longitude   : %lf deg. %c\n", longitude, direction);
+    printf("Longitude: %lf deg. %c\n", longitude, direction);
 
-    printf("Altitude    : %.1fm\n", btof(ntohl(zerg_gps.altitude)) * 1.8288);
-    printf("Bearing     : %f deg.\n", btof(ntohl(zerg_gps.bearing)));
-    printf("Speed       : %f m/s\n", btof(ntohl(zerg_gps.speed)));
-    printf("Accuracy    : %.0fm\n", btof(ntohl(zerg_gps.accuracy)));
+    printf("Altitude : %.1fm\n", btof(ntohl(zerg_gps.altitude)) * 1.8288);
+    printf("Bearing  : %f deg.\n", btof(ntohl(zerg_gps.bearing)));
+    printf("Speed    : %.0f km/s\n", btof(ntohl(zerg_gps.speed)) * 3.6);
+    printf("Accuracy : %.0fm\n", btof(ntohl(zerg_gps.accuracy)));
 }
 
 void print_status(struct zerg_status zerg_status)
 {
     int hp = ntoh24(zerg_status.hp);
     int maxHp = ntoh24(zerg_status.maxHp);
-    printf("HP      : %d/%d\n", hp, maxHp);
-    printf("Type    : %s\n", breed[zerg_status.type]);
-    printf("Armor   : %d\n", zerg_status.armor);
-    printf("Speed   : %f\n", btof(ntohl(zerg_status.speed)));
+    printf("HP       : %d/%d\n", hp, maxHp);
+    printf("Type     : %s\n", breed[zerg_status.type]);
+    printf("Armor    : %d\n", zerg_status.armor);
+    printf("Speed    : %f\n", btof(ntohl(zerg_status.speed)));
 }
 
 void print_cmd(struct zerg_cmd zerg_cmd)
@@ -226,4 +230,12 @@ void print_cmd(struct zerg_cmd zerg_cmd)
     printf("debug: %s\n", command[ntohs(zerg_cmd.cmdNum)]);
     printf("debug: %x\n", ntohs(zerg_cmd.param1));
     printf("debug: %x\n", ntohl(zerg_cmd.param2));
+}
+
+void print_preface(struct zerg zerg, int version)
+{
+    printf("Version  : %d\n", version);
+    printf("Sequence : %d\n", ntohl(zerg.id));
+    printf("To       : %d\n", ntohs(zerg.dstId));
+    printf("From     : %d\n", ntohs(zerg.srcId));
 }
