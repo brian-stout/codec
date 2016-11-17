@@ -79,7 +79,8 @@ main(int argc, char *argv[])
 
     zerg_string = malloc((zerg_payload + 1) * sizeof(char));
 
-    //struct zerg_cmd zerg_cmd;
+    //TODO: put in order for readability
+    struct zerg_cmd zerg_cmd;
     struct zerg_gps zerg_gps;
     struct zerg_status zerg_status;
 
@@ -103,7 +104,10 @@ main(int argc, char *argv[])
         printf("%s\n", zerg_string);
         break;
     case 2:
-        printf("DEBUG:This is a command payload\n");
+        fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
+        printf("debug: %x\n", ntohs(zerg_cmd.cmd));
+        printf("debug: %x\n", ntohs(zerg_cmd.param1));
+        printf("debug: %x\n", ntohl(zerg_cmd.param2));
         break;
     case 3:
         printf("DEBUG:This is a GPS payload.\n");
@@ -127,6 +131,8 @@ main(int argc, char *argv[])
 
 }
 
+
+//TODO: put in a header file for future use in other programs
 uint64_t
 ntohll(uint64_t i)
 {
