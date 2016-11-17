@@ -164,7 +164,6 @@ ntoh24(uint32_t i)
     return i;
 }
 
-
 //Solution adapted from http://stackoverflow.com/a/28884902
 //Credit to user Antoine L 
 float btof(uint32_t a)
@@ -227,9 +226,27 @@ void print_status(struct zerg_status zerg_status)
 
 void print_cmd(struct zerg_cmd zerg_cmd)
 {
-    printf("debug: %s\n", command[ntohs(zerg_cmd.cmdNum)]);
-    printf("debug: %x\n", ntohs(zerg_cmd.param1));
-    printf("debug: %x\n", ntohl(zerg_cmd.param2));
+    unsigned int cmd = ntohs(zerg_cmd.cmdNum);
+    if (cmd % 2)
+    {
+        printf("Command  :%s\n", command[cmd]);
+        break;
+    }
+    switch (cmd)
+    {
+        case 1:
+            printf("Command  :%s", command[cmd]);
+            printf("%.2f deg. ", btof(ntohs(zerg_cmd.param1)));
+            printf("%d meters away\n", (unsigned int)ntohs(zerg_cmd.param2));
+            break;
+        case 5:
+            break;
+        case 7:
+            break;
+        default:
+            break;
+            
+    }
 }
 
 void print_preface(struct zerg zerg, int version)
