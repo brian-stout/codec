@@ -227,25 +227,26 @@ void print_status(struct zerg_status zerg_status)
 void print_cmd(struct zerg_cmd zerg_cmd)
 {
     unsigned int cmd = ntohs(zerg_cmd.cmdNum);
-    if (cmd % 2)
+    if (!cmd % 2)
     {
-        printf("Command  :%s\n", command[cmd]);
-        break;
+        printf("Command  : %s\n", command[cmd]);
+        return;
     }
     switch (cmd)
     {
         case 1:
-            printf("Command  :%s", command[cmd]);
+            printf("Command  : %s ", command[cmd]);
             printf("%.2f deg. ", btof(ntohs(zerg_cmd.param1)));
             printf("%d meters away\n", (unsigned int)ntohs(zerg_cmd.param2));
             break;
         case 5:
+            printf("Command  : %s", command[cmd]);
             break;
         case 7:
+            printf("Command  : %s", command[cmd]);
             break;
         default:
-            break;
-            
+            break;    
     }
 }
 
