@@ -95,8 +95,10 @@ main(int argc, char *argv[])
         break;
     case 1:
         fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
-        printf("debug: %x\n", ntohl(zerg_status.hpArmor));
-        printf("debug: %x\n", ntohl(zerg_status.maxHpType));
+        printf("debug: %x\n", ntoh24(zerg_status.hp));
+        printf("debug: %x\n", zerg_status.armor);
+        printf("debug: %x\n", ntoh24(zerg_status.maxHp));
+        printf("debug: %s\n", breed[zerg_status.type]);
         printf("debug: %x\n", ntohl(zerg_status.speed));
         //TODO: Put in function?
         fread(zerg_string, zerg_payload, 1, fp);
