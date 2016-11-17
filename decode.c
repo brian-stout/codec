@@ -57,25 +57,47 @@ main(int argc, char *argv[])
     int type = zerg.versionType & 0xf;
     //int version = zerg.versionType >> 4;
 
-    int zerg_payload = ntoh24(zerg.len) - zerg_packet;
+    int zerg_payload;
 
-    char *zerg_string;
+    //Always malloc zerg_string to avoid freeing nonexistent memory
+    //TODO: Put in function
+    char * zerg_string;
+    if (type == 0)
+    {
+        zerg_payload = ntoh24(zerg.len) - zerg_packet;
+    }
+    else if (type == 1)
+    {
+        zerg_payload = ntoh24(zerg.len) - zerg_packet * 2;
+    }
+    else
+    {
+       zerg_payload = 0;
+    }
+    zerg_string = malloc((zerg_payload + 1) * sizeof(char));
+
     //struct zerg_cmd zerg_cmd;
     struct zerg_gps zerg_gps;
-    //struct zerg_status zerg_status;
+    struct zerg_status zerg_status;
 
     switch (type)
     {
     case 0:
-        //sets asside memory for the amount of expected characters
-        zerg_string = malloc((zerg_payload + 1) * sizeof(char));
+        //TODO: Put in function?
         fread(zerg_string, zerg_payload, 1, fp);
         //Sets the extra char space to null so string is null terminated
         zerg_string[zerg_payload] = '\0';
         printf("%s\n", zerg_string);
         break;
     case 1:
-        printf("DEBUG:This is a status payload\n");
+        fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
+        printf("debug: %x\n", ntohl(zerg_status.hpArmor));
+        printf("debug: %x\n", ntohl(zerg_status.maxHpType));
+        printf("debug: %x\n", ntohl(zerg_status.speed));
+        //TODO: Put in function?
+        fread(zerg_string, zerg_payload, 1, fp);
+        zerg_string[zerg_payload] = '\0';
+        printf("%s\n", zerg_string);
         break;
     case 2:
         printf("DEBUG:This is a command payload\n");
@@ -95,6 +117,10 @@ main(int argc, char *argv[])
     }
     //File closed because data has all been read at this point
     fclose(fp);
+
+    //Checks to see if memory was malloc'd for a nonstatic string
+    //and frees it
+    free(zerg_string);
 
 }
 
