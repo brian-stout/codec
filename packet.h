@@ -7,7 +7,7 @@ enum
 
 enum
 {
-    packet_minus_zerg = 40
+    packet_minus_zerg = 42
 };
 
 struct __attribute__ ((packed)) pcap_global
