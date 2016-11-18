@@ -19,7 +19,7 @@ void print_gps(struct zerg_gps);
 
 void print_status(struct zerg_status);
 
-void print_cmd(struct zerg_cmd);
+void print_cmd(struct zerg_cmd, uint16_t cmdNum);
 
 void print_preface(struct zerg, int);
 
@@ -51,7 +51,7 @@ main(int argc, char *argv[])
         int err;
         struct pcap_packet pcap_packet;
         err = fread(&pcap_packet, sizeof(struct pcap_packet), 1, fp);
-        if ( err == 0 )
+        if (err == 0)
         {
             break;
         }
@@ -66,6 +66,8 @@ main(int argc, char *argv[])
 
         struct zerg zerg;
         fread(&zerg, sizeof(struct zerg), 1, fp);
+
+        print_network_packets(pcap_packet, ethernet, ipv4, udp);
 
         //TODO: Put in function
         int zerg_payload = 0;
@@ -97,6 +99,7 @@ main(int argc, char *argv[])
         struct zerg_cmd zerg_cmd;
         struct zerg_gps zerg_gps;
         struct zerg_status zerg_status;
+        uint16_t cmdNum;
 
         switch (type)
         {
@@ -115,8 +118,17 @@ main(int argc, char *argv[])
             print_status(zerg_status);
             break;
         case 2:
+            fread(&cmdNum, sizeof(cmdNum), 1, fp);
+            cmdNum = ntohs(cmdNum);
+            if (!cmdNum % 2)
+            {
+                printf("Command  : %s\n", command[cmdNum]);
+            }
+            else
+            {
             fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
-            print_cmd(zerg_cmd);
+            print_cmd(zerg_cmd, cmdNum);
+            }
             break;
         case 3:
             fread(&zerg_gps, sizeof(struct zerg_gps), 1, fp);
@@ -250,15 +262,9 @@ print_status(struct zerg_status zerg_status)
 }
 
 void
-print_cmd(struct zerg_cmd zerg_cmd)
+print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
 {
-    unsigned int cmd = ntohs(zerg_cmd.cmdNum);
-
-    if (!cmd % 2)
-    {
-        printf("Command  : %s\n", command[cmd]);
-        return;
-    }
+    unsigned int cmd = cmdNum;
     switch (cmd)
     {
     case 1:
