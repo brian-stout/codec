@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "packets.h"
+#include "packet.h"
 
 uint64_t ntohll(uint64_t);
 
@@ -51,85 +51,91 @@ main(int argc, char *argv[])
     struct pcap_global pcap_global;
     fread(&pcap_global, sizeof(struct pcap_global), 1, fp);
 
-    struct pcap_packet pcap_packet;
-    fread(&pcap_packet, sizeof(struct pcap_packet), 1, fp);
-
-    struct ethernet ethernet;
-    fread(&ethernet, sizeof(struct ethernet), 1, fp);
-
-    struct ipv4 ipv4;
-    fread(&ipv4, sizeof(struct ipv4), 1, fp);
-
-    struct udp udp;
-    fread(&udp, sizeof(struct udp), 1, fp);
-
-    struct zerg zerg;
-    fread(&zerg, sizeof(struct zerg), 1, fp);
-
-    //TODO: Put in function
-    int zerg_payload = 0;
-
-    int type = zerg.versionType & 0xf;
-    int version = zerg.versionType >> 4;
-    print_preface(zerg, version);
-
-    if (type == 0)
+    while (1)
     {
-        zerg_payload = ntoh24(zerg.len) - zerg_packet;
-    }
-    else if (type == 1)
-    {
-        /*the size of the status payload minus the zerg_name
-         * happens to be the same size as the zerg_header packet
-         * minus the payload, so multiply twice */
-        //TODO: enum zerg_status in case it changes later
-        zerg_payload = ntoh24(zerg.len) - zerg_packet * 2;
-    }
+        int err;
+        struct pcap_packet pcap_packet;
+        err = fread(&pcap_packet, sizeof(struct pcap_packet), 1, fp);
+        if ( err == 0 )
+        {
+            break;
+        }
+        struct ethernet ethernet;
+        fread(&ethernet, sizeof(struct ethernet), 1, fp);
 
-    //Always malloc zerg_string to avoid freeing nonexistent memory
-    char *zerg_string;
+        struct ipv4 ipv4;
+        fread(&ipv4, sizeof(struct ipv4), 1, fp);
 
-    zerg_string = malloc((zerg_payload + 1) * sizeof(char));
+        struct udp udp;
+        fread(&udp, sizeof(struct udp), 1, fp);
 
-    //TODO: put in order for readability
-    struct zerg_cmd zerg_cmd;
-    struct zerg_gps zerg_gps;
-    struct zerg_status zerg_status;
+        struct zerg zerg;
+        fread(&zerg, sizeof(struct zerg), 1, fp);
 
+        //TODO: Put in function
+        int zerg_payload = 0;
+        int type = zerg.versionType & 0xf;
+        int version = zerg.versionType >> 4;
+        print_preface(zerg, version);
 
+        if (type == 0)
+        {
+            zerg_payload = ntoh24(zerg.len) - zerg_packet;
+        }
+        else if (type == 1)
+        {
+            /*the size of the status payload minus the zerg_name
+             * happens to be the same size as the zerg_header packet
+             * minus the payload, so multiply twice */
+            //TODO: enum zerg_status in case it changes later
+            zerg_payload = ntoh24(zerg.len) - zerg_packet * 2;
+        }
 
-    switch (type)
-    {
-    case 0:
-        fread(zerg_string, zerg_payload, 1, fp);
-        //Sets the extra char space to null so string is null terminated
-        zerg_string[zerg_payload] = '\0';
-        printf("%s\n", zerg_string);
-        break;
-    case 1:
-        fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
-        fread(zerg_string, zerg_payload, 1, fp);
-        zerg_string[zerg_payload] = '\0';
-        printf("Name     : %s\n", zerg_string);
-        print_status(zerg_status);
-        break;
-    case 2:
-        fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
-        print_cmd(zerg_cmd);
-        break;
-    case 3:
-        fread(&zerg_gps, sizeof(struct zerg_gps), 1, fp);
-        print_gps(zerg_gps);
-        break;
-    default:
-        printf("Packet corrupt!\n");
+        //Always malloc zerg_string to avoid freeing nonexistent memory
+        char *zerg_string;
+
+        zerg_string = malloc((zerg_payload + 1) * sizeof(char));
+
+        //TODO: put in order for readability
+        struct zerg_cmd zerg_cmd;
+        struct zerg_gps zerg_gps;
+        struct zerg_status zerg_status;
+
+        switch (type)
+        {
+        case 0:
+            fread(zerg_string, zerg_payload, 1, fp);
+            //Sets the extra char space to null so string is null terminated
+            zerg_string[zerg_payload] = '\0';
+            printf("%s\n", zerg_string);
+            break;
+        case 1:
+            printf("DEBUG: Running a status report\n");
+            fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
+            fread(zerg_string, zerg_payload, 1, fp);
+            zerg_string[zerg_payload] = '\0';
+            printf("Name     : %s\n", zerg_string);
+            print_status(zerg_status);
+            break;
+        case 2:
+            fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
+            print_cmd(zerg_cmd);
+            break;
+        case 3:
+            fread(&zerg_gps, sizeof(struct zerg_gps), 1, fp);
+            print_gps(zerg_gps);
+            break;
+        default:
+            printf("Packet corrupt!\n");
+        }
+        printf("\n");
+        free(zerg_string);
+        
     }
     //File closed because data has all been read at this point
     fclose(fp);
 
-    //Checks to see if memory was malloc'd for a nonstatic string
-    //and frees it
-    free(zerg_string);
+
 
 }
 
@@ -166,28 +172,42 @@ ntoh24(uint32_t i)
 
 //Solution adapted from http://stackoverflow.com/a/28884902
 //Credit to user Antoine L 
-float btof(uint32_t a)
+float
+btof(uint32_t a)
 {
-        union { uint32_t b; float f; } u;
-        u.b = a;
-        return u.f;
+    union
+    {
+        uint32_t b;
+        float f;
+    } u;
+
+    u.b = a;
+    return u.f;
 }
 
-double btod(uint64_t a)
+double
+btod(uint64_t a)
 {
-        union { uint64_t b; double d; } u;
-        u.b = a;
-        return u.d;
+    union
+    {
+        uint64_t b;
+        double d;
+    } u;
+
+    u.b = a;
+    return u.d;
 }
 
-void print_gps(struct zerg_gps zerg_gps)
+void
+print_gps(struct zerg_gps zerg_gps)
 {
     char direction = ' ';
 
     double latitude = btod(ntohll(zerg_gps.latitude));
+
     if (latitude > 0)
     {
-        direction = 'N' ;
+        direction = 'N';
     }
     else if (latitude < 0)
     {
@@ -197,9 +217,10 @@ void print_gps(struct zerg_gps zerg_gps)
     printf("Latitude : %lf deg. %c\n", latitude, direction);
 
     double longitude = btod(ntohll(zerg_gps.longitude));
+
     if (longitude > 0)
     {
-        direction = 'E' ;
+        direction = 'E';
     }
     else if (longitude < 0)
     {
@@ -214,19 +235,23 @@ void print_gps(struct zerg_gps zerg_gps)
     printf("Accuracy : %.0fm\n", btof(ntohl(zerg_gps.accuracy)));
 }
 
-void print_status(struct zerg_status zerg_status)
+void
+print_status(struct zerg_status zerg_status)
 {
     int hp = ntoh24(zerg_status.hp);
     int maxHp = ntoh24(zerg_status.maxHp);
+
     printf("HP       : %d/%d\n", hp, maxHp);
     printf("Type     : %s\n", breed[zerg_status.type]);
     printf("Armor    : %d\n", zerg_status.armor);
     printf("Speed    : %f\n", btof(ntohl(zerg_status.speed)));
 }
 
-void print_cmd(struct zerg_cmd zerg_cmd)
+void
+print_cmd(struct zerg_cmd zerg_cmd)
 {
     unsigned int cmd = ntohs(zerg_cmd.cmdNum);
+
     if (!cmd % 2)
     {
         printf("Command  : %s\n", command[cmd]);
@@ -234,36 +259,44 @@ void print_cmd(struct zerg_cmd zerg_cmd)
     }
     switch (cmd)
     {
-        case 1:
-            printf("Command  : %s ", command[cmd]);
-            printf("%.2f deg. ", btof(ntohs(zerg_cmd.param1)));
-            printf("%d meters away\n", (unsigned int)ntohs(zerg_cmd.param2));
-            break;
-        case 5:
-            printf("Command  : %s ", command[cmd]);
-            printf("%d ", ntohl(zerg_cmd.param2));
-            if (ntohs(zerg_cmd.param1))
-            {
-                printf("TRUE\n");
-            }
-            else
-            {
-                printf("FALSE\n");
-            }
-            break;
-        case 7:
-            printf("Command  : %s ", command[cmd]);
-            printf("sequence %d\n", ntohl(zerg_cmd.param2));
-            break;
-        default:
-            break;    
+    case 1:
+        printf("Command  : %s ", command[cmd]);
+        printf("%.2f deg. ", btof(ntohs(zerg_cmd.param1)));
+        printf("%d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
+        break;
+    case 5:
+        printf("Command  : %s ", command[cmd]);
+        printf("%d ", ntohl(zerg_cmd.param2));
+        if (ntohs(zerg_cmd.param1))
+        {
+            printf("TRUE\n");
+        }
+        else
+        {
+            printf("FALSE\n");
+        }
+        break;
+    case 7:
+        printf("Command  : %s ", command[cmd]);
+        printf("sequence %d\n", ntohl(zerg_cmd.param2));
+        break;
+    default:
+        break;
     }
 }
 
-void print_preface(struct zerg zerg, int version)
+void
+print_preface(struct zerg zerg, int version)
 {
     printf("Version  : %d\n", version);
     printf("Sequence : %d\n", ntohl(zerg.id));
     printf("To       : %d\n", ntohs(zerg.dstId));
     printf("From     : %d\n", ntohs(zerg.srcId));
 }
+/*
+bool
+padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
+{
+
+} 
+*/
