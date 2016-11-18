@@ -4,6 +4,7 @@
 #include <sysexits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "packet.h"
 
@@ -23,7 +24,7 @@ void print_cmd(struct zerg_cmd);
 
 void print_preface(struct zerg, int);
 
-
+bool padding_check(struct pcap_packet, struct zerg);
 
 int
 main(int argc, char *argv[])
@@ -286,10 +287,18 @@ print_preface(struct zerg zerg, int version)
     printf("To       : %d\n", ntohs(zerg.dstId));
     printf("From     : %d\n", ntohs(zerg.srcId));
 }
-/*
+
+//TODO: Move to packet.c?
 bool
 padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
 {
-
+    if (pcap_packet.sizeFile - (zerg.len + packet_minus_zerg) != 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true; 
+    }
 } 
-*/
+
