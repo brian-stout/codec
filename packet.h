@@ -1,5 +1,15 @@
 #include <stdint.h>
 
+enum
+{
+    zerg_packet = 12
+};
+
+enum
+{
+    packet_minus_zerg = 40
+};
+
 struct __attribute__ ((packed)) pcap_global
 {
     uint32_t identifier:32;
