@@ -69,9 +69,8 @@ struct __attribute__ ((packed)) zerg
     uint32_t id:32;
 };
 
-struct zerg_cmd
+struct __attribute__ ((packed)) zerg_cmd
 {
-    uint16_t cmdNum:16;
     uint16_t param1:16;
     uint32_t param2:32;
 };
@@ -106,3 +105,32 @@ const char *breed[] = {
 	"Broodling", "Hydralisk", "Guardian", "Scourge",
 	"Ultralisk", "Mutalisk", "Defiler", "Devourer"
 };
+
+void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 c, struct udp d)
+{
+    printf("%x ", ntohl(a.unixEpoch));
+    printf("%x ", a.microseconds);
+    printf("%x ", a.sizeFile);
+    printf("%x ", a.sizeWire);
+
+    printf("%x ", b.dst);
+    printf("%x ", b.dst2);
+    printf("%x ", b.src);
+    printf("%x ", b.src2);
+    printf("%x ", b.type);
+
+    printf("%x ", c.versionIHL);
+    printf("%x ", c.DSCP_ECN);
+    printf("%x ", c.totalLen);
+    printf("%x ", c.id);
+    printf("%x ", c.flagsFragOffset);
+    printf("%x ", c.ttlProto);
+    printf("%x ", c.check);
+    printf("%x ", c.src);
+    printf("%x ", c.dst);
+
+    printf("%x ", d.src);
+    printf("%x ", d.dst);
+    printf("%x ", d.len);
+    printf("%x ", d.check);
+}
