@@ -4,7 +4,6 @@
 #include <sysexits.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 #include "packet.h"
 
@@ -24,7 +23,7 @@ void print_cmd(struct zerg_cmd);
 
 void print_preface(struct zerg, int);
 
-bool padding_check(struct pcap_packet, struct zerg);
+int padding_check(struct pcap_packet, struct zerg);
 
 int
 main(int argc, char *argv[])
@@ -127,6 +126,15 @@ main(int argc, char *argv[])
             printf("Packet corrupt!\n");
         }
         free(zerg_string);
+    
+        int padding;
+        padding = padding_check(pcap_packet, zerg);
+        printf("DEBUG: Padding %d\n", padding);
+        if(padding)
+        {
+            printf("There is padding! \n");
+            fseek(fp, padding, SEEK_CUR); 
+        }
         
     }
     //File closed because data has all been read at this point
@@ -289,16 +297,11 @@ print_preface(struct zerg zerg, int version)
 }
 
 //TODO: Move to packet.c?
-bool
+int
 padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
 {
-    if (pcap_packet.sizeFile - (zerg.len + packet_minus_zerg) != 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true; 
-    }
+    int padding;
+    padding = pcap_packet.sizeFile - (ntoh24(zerg.len) + packet_minus_zerg);
+    return padding;
 } 
 
