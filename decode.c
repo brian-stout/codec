@@ -23,13 +23,7 @@ void print_cmd(struct zerg_cmd);
 
 void print_preface(struct zerg, int);
 
-enum
-{
-    //Size of zerg_packet header minus the pay load
-    //Used to read correct size from packets with non-static
-    //packet lengths
-    zerg_packet = 12
-};
+
 
 int
 main(int argc, char *argv[])
@@ -51,6 +45,7 @@ main(int argc, char *argv[])
     struct pcap_global pcap_global;
     fread(&pcap_global, sizeof(struct pcap_global), 1, fp);
 
+    //TODO: Add bools, use TRUE
     while (1)
     {
         int err;
@@ -76,6 +71,8 @@ main(int argc, char *argv[])
         int zerg_payload = 0;
         int type = zerg.versionType & 0xf;
         int version = zerg.versionType >> 4;
+        printf("%d\n", pcap_packet.sizeFile);
+        printf("%d\n", ntoh24(zerg.len));
         print_preface(zerg, version);
 
         if (type == 0)
@@ -128,15 +125,11 @@ main(int argc, char *argv[])
         default:
             printf("Packet corrupt!\n");
         }
-        printf("\n");
         free(zerg_string);
         
     }
     //File closed because data has all been read at this point
     fclose(fp);
-
-
-
 }
 
 
