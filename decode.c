@@ -12,9 +12,9 @@ uint64_t ntohll(uint64_t);
 
 uint32_t ntoh24(uint32_t);
 
-float btof(uint32_t);
+float bin_to_float(uint32_t);
 
-double btod(uint64_t);
+double bin_to_doub(uint64_t);
 
 void print_gps(struct zerg_gps);
 
@@ -200,7 +200,7 @@ ntoh24(uint32_t i)
 //Solution adapted from http://stackoverflow.com/a/28884902
 //Credit to user Antoine L 
 float
-btof(uint32_t a)
+bin_to_float(uint32_t a)
 {
     union
     {
@@ -213,7 +213,7 @@ btof(uint32_t a)
 }
 
 double
-btod(uint64_t a)
+bin_to_doub(uint64_t a)
 {
     union
     {
@@ -230,7 +230,7 @@ print_gps(struct zerg_gps zerg_gps)
 {
     char direction = ' ';
 
-    double latitude = btod(ntohll(zerg_gps.latitude));
+    double latitude = bin_to_doub(ntohll(zerg_gps.latitude));
 
     if (latitude > 0)
     {
@@ -243,7 +243,7 @@ print_gps(struct zerg_gps zerg_gps)
     }
     printf("Latitude : %lf deg. %c\n", latitude, direction);
 
-    double longitude = btod(ntohll(zerg_gps.longitude));
+    double longitude = bin_to_doub(ntohll(zerg_gps.longitude));
 
     if (longitude > 0)
     {
@@ -256,10 +256,10 @@ print_gps(struct zerg_gps zerg_gps)
     }
     printf("Longitude: %lf deg. %c\n", longitude, direction);
 
-    printf("Altitude : %.1fm\n", btof(ntohl(zerg_gps.altitude)) * 1.8288);
-    printf("Bearing  : %f deg.\n", btof(ntohl(zerg_gps.bearing)));
-    printf("Speed    : %.0f km/s\n", btof(ntohl(zerg_gps.speed)) * 3.6);
-    printf("Accuracy : %.0fm\n", btof(ntohl(zerg_gps.accuracy)));
+    printf("Altitude : %.1fm\n", bin_to_float(ntohl(zerg_gps.altitude)) * 1.8288);
+    printf("Bearing  : %f deg.\n", bin_to_float(ntohl(zerg_gps.bearing)));
+    printf("Speed    : %.0f km/s\n", bin_to_float(ntohl(zerg_gps.speed)) * 3.6);
+    printf("Accuracy : %.0fm\n", bin_to_float(ntohl(zerg_gps.accuracy)));
 }
 
 void
@@ -271,7 +271,7 @@ print_status(struct zerg_status zerg_status)
     printf("HP       : %d/%d\n", hp, maxHp);
     printf("Type     : %s\n", breed[zerg_status.type]);
     printf("Armor    : %d\n", zerg_status.armor);
-    printf("Speed    : %f\n", btof(ntohl(zerg_status.speed)));
+    printf("Speed    : %f\n", bin_to_float(ntohl(zerg_status.speed)));
 }
 
 void
@@ -283,7 +283,7 @@ print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
     {
     case 1:
         printf("Command  : %s ", command[cmd]);
-        printf("%.2f deg. ", btof(ntohs(zerg_cmd.param1)));
+        printf("%.2f deg. ", bin_to_float(ntohs(zerg_cmd.param1)));
         printf("%d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
         break;
     case 5:
