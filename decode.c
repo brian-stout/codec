@@ -4,6 +4,7 @@
 #include <sysexits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "packet.h"
 
@@ -42,19 +43,23 @@ main(int argc, char *argv[])
         return EX_USAGE;
     }
 
+    //There is only one pcap global header for each .pcap file
     struct pcap_global pcap_global;
     fread(&pcap_global, sizeof(struct pcap_global), 1, fp);
 
-    //TODO: Add bools, use TRUE
-    while (1)
+    
+    while (true)
     {
-        int err;
+        int readData;
+
+        //Checks to see if there's still data to be read after each loop runs
         struct pcap_packet pcap_packet;
-        err = fread(&pcap_packet, sizeof(struct pcap_packet), 1, fp);
-        if (err == 0)
+        readData = fread(&pcap_packet, sizeof(struct pcap_packet), 1, fp);
+        if (readData == 0)
         {
             break;
         }
+
         struct ethernet ethernet;
         fread(&ethernet, sizeof(struct ethernet), 1, fp);
 
@@ -67,19 +72,21 @@ main(int argc, char *argv[])
         struct zerg zerg;
         fread(&zerg, sizeof(struct zerg), 1, fp);
 
-        print_network_packets(pcap_packet, ethernet, ipv4, udp);
-
         //TODO: Put in function
-        int zerg_payload = 0;
+        size_t zergStringSize = 0;
+    
+        //Calculates two seperate four bit values from a byte of information
         int type = zerg.versionType & 0xf;
         int version = zerg.versionType >> 4;
-        printf("%d\n", pcap_packet.sizeFile);
-        printf("%d\n", ntoh24(zerg.len));
+
+        //Prints out the initial packet communication information for every packet
         print_preface(zerg, version);
 
+        //For special packets which may have a variable message at the end
+        //calculates the size of the message and mallocs the appropiate space
         if (type == 0)
         {
-            zerg_payload = ntoh24(zerg.len) - zerg_packet;
+            zergStringSize = ntoh24(zerg.len) - zerg_packet;
         }
         else if (type == 1)
         {
@@ -87,34 +94,38 @@ main(int argc, char *argv[])
              * happens to be the same size as the zerg_header packet
              * minus the payload, so multiply twice */
             //TODO: enum zerg_status in case it changes later
-            zerg_payload = ntoh24(zerg.len) - zerg_packet * 2;
+            zergStringSize = ntoh24(zerg.len) - zerg_packet * 2;
         }
 
-        //Always malloc zerg_string to avoid freeing nonexistent memory
-        char *zerg_string;
+        //Always malloc zergString to avoid freeing nonexistent memory
+        char *zergString;
+        zergString = malloc((zergStringSize + 1) * sizeof(char));
 
-        zerg_string = malloc((zerg_payload + 1) * sizeof(char));
-
+        //Structs outside because they can't be initialized in a switch statement
         //TODO: put in order for readability
         struct zerg_cmd zerg_cmd;
         struct zerg_gps zerg_gps;
         struct zerg_status zerg_status;
+        
+        //cmdNum seperated from struct because it needs to be processed to
+        //determine if the rest of the struct is read in
+        //TODO: read everything outside the struct and assign it in later
+        //      for consistency
         uint16_t cmdNum;
 
         switch (type)
         {
         case 0:
-            fread(zerg_string, zerg_payload, 1, fp);
+            fread(zergString, zergStringSize, 1, fp);
             //Sets the extra char space to null so string is null terminated
-            zerg_string[zerg_payload] = '\0';
-            printf("%s\n", zerg_string);
+            zergString[zergStringSize] = '\0';
+            printf("%s\n", zergString);
             break;
         case 1:
-            printf("DEBUG: Running a status report\n");
             fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
-            fread(zerg_string, zerg_payload, 1, fp);
-            zerg_string[zerg_payload] = '\0';
-            printf("Name     : %s\n", zerg_string);
+            fread(zergString, zergStringSize, 1, fp);
+            zergString[zergStringSize] = '\0';
+            printf("Name     : %s\n", zergString);
             print_status(zerg_status);
             break;
         case 2:
@@ -126,8 +137,8 @@ main(int argc, char *argv[])
             }
             else
             {
-            fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
-            print_cmd(zerg_cmd, cmdNum);
+                fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
+                print_cmd(zerg_cmd, cmdNum);
             }
             break;
         case 3:
@@ -137,17 +148,19 @@ main(int argc, char *argv[])
         default:
             printf("Packet corrupt!\n");
         }
-        free(zerg_string);
-    
+        free(zergString);
+
         int padding;
+
+        //There is a mininum byte size for pcap files and if
+        //the data does not meet it there is padding which needs
+        //to be skipped to read the next packet correctly
         padding = padding_check(pcap_packet, zerg);
-        printf("DEBUG: Padding %d\n", padding);
-        if(padding)
+        if (padding)
         {
-            printf("There is padding! \n");
-            fseek(fp, padding, SEEK_CUR); 
+            fseek(fp, padding, SEEK_CUR);
         }
-        
+
     }
     //File closed because data has all been read at this point
     fclose(fp);
@@ -265,6 +278,7 @@ void
 print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
 {
     unsigned int cmd = cmdNum;
+
     switch (cmd)
     {
     case 1:
@@ -307,7 +321,7 @@ int
 padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
 {
     int padding;
+
     padding = pcap_packet.sizeFile - (ntoh24(zerg.len) + packet_minus_zerg);
     return padding;
-} 
-
+}
