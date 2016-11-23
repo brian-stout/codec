@@ -47,7 +47,7 @@ main(int argc, char *argv[])
 int
 get_int_value(FILE * fp)
 {
-    char number_string[128];
+    char numberString[128];
     char c;
     size_t i = 0;
 
@@ -55,14 +55,14 @@ get_int_value(FILE * fp)
     {
         if (isdigit(c))
         {
-            number_string[i] = c;
+            numberString[i] = c;
             ++i;
         }
-        number_string[i] = '\0';
+        numberString[i] = '\0';
     }
     int r;
 
-    r = strtol(number_string, NULL, 10);
+    r = strtol(numberString, NULL, 10);
 
     return r;
 }
