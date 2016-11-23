@@ -7,6 +7,7 @@
 #include "packet.h"
 
 int get_int_value(FILE * fp);
+float get_float_value(FILE * fp);
 int get_hp(FILE * fp);
 int get_breed(FILE * fp, int, const char **);
 
@@ -61,6 +62,7 @@ main(int argc, char *argv[])
     {
     //Message type
     case 0:
+        //TODO: Put in function
         if (fgets(messageString, sizeof(messageString), fp) != NULL)
         {
             //Remove the newline off the end
@@ -70,6 +72,7 @@ main(int argc, char *argv[])
         break;
     //Status type
     case 1:
+        //TODO: put in function
         if (fgets(buf, sizeof(buf), fp) != NULL)
         {
             //Grabs name of zerg
@@ -82,9 +85,14 @@ main(int argc, char *argv[])
         }
         zerg_status.hp = get_hp(fp);
         zerg_status.maxHp = get_int_value(fp);
-        printf("%d\n", zerg_status.hp);
-        printf("%d\n", zerg_status.maxHp);
         zerg_status.type = get_breed(fp, number_of_breeds, breed);
+        zerg_status.armor = get_int_value(fp);
+        printf("%d\n", zerg_status.hp); //DEBUG
+        printf("%d\n", zerg_status.maxHp); //DEBUG
+        printf("%s\n", breed[zerg_status.type]); //DEBUG
+        printf("%d\n", zerg_status.armor);
+        //TODO: Create a union to convert float to hex properly for zerg_status.speed
+        printf("%f\n", get_float_value(fp));
 
         break;
     //Command type
@@ -147,6 +155,7 @@ int get_breed(FILE * fp, int number_of_breeds, const char **breed)
 {
     char buf[128];
     char messageString[128];
+    int r;
 
     if (fgets(buf, sizeof(buf), fp) != NULL)
     {
@@ -157,6 +166,32 @@ int get_breed(FILE * fp, int number_of_breeds, const char **breed)
         }
         messageString[strlen(messageString) - 1] = '\0';
     }
-    printf("%s\n", breed[number_of_breeds - 1]);
-    return 1;
+    for(int i = 0; i < number_of_breeds; ++i)
+    {
+        //TODO: Correct use of strlen in strncmp?
+        if(!strncmp(messageString, breed[i], strlen(breed[i])))
+        {
+            r = i;
+            break;
+        } 
+    }
+    return r;
+}
+
+float get_float_value(FILE * fp)
+{
+    char buf[128];
+    char numberString[128];
+
+    if (fgets(buf, sizeof(buf), fp) != NULL)
+    {
+        //Grabs name of zerg
+        for(size_t i = 0; i < strlen(buf); ++i)
+        {
+            numberString[i] = buf[i + data_offset];
+        }
+        numberString[strlen(numberString) - 1] = '\0';
+    }
+    float r = strtof(numberString, NULL);
+    return r;
 }
