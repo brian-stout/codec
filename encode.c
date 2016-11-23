@@ -24,10 +24,12 @@ main (int argc, char *argv[])
         return EX_USAGE;
     }
     
-    printf("%d\n", get_int_value(fp));
-    printf("%d\n", get_int_value(fp));
-    printf("%d\n", get_int_value(fp));
-    printf("%d\n", get_int_value(fp));
+    struct zerg zerg;
+    zerg.versionType = get_int_value(fp);
+    zerg.versionType = zerg.versionType << 4;
+    zerg.id = get_int_value(fp);
+    zerg.srcId = get_int_value(fp);
+    zerg.dstId = get_int_value(fp);
 }
 
 int get_int_value(FILE *fp)
