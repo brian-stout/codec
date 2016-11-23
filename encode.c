@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <sysexits.h>
 #include <ctype.h>
+#include <stdlib.h>
 
-void get_int_value(FILE *fp)
+#include "packet.h"
+
+int get_int_value(FILE *fp);
 
 int
 main (int argc, char *argv[])
@@ -12,10 +15,8 @@ main (int argc, char *argv[])
       printf ("ERROR, USAGE: [encode] [~/<filename>]\n");
       return EX_USAGE;
     }
-  else
-    {
-      FILE *fp = fopen(argv[1], "r");
-    }
+
+    FILE *fp = fopen(argv[1], "r");
 
     if (!fp)
     {
@@ -23,25 +24,28 @@ main (int argc, char *argv[])
         return EX_USAGE;
     }
     
-    if (fgets(buf, sizeof(buf), fp) != NULL)
-    {
-
-    }
-
+    printf("%d\n", get_int_value(fp));
+    printf("%d\n", get_int_value(fp));
+    printf("%d\n", get_int_value(fp));
+    printf("%d\n", get_int_value(fp));
 }
 
-void get_int_value(FILE *fp)
+int get_int_value(FILE *fp)
 {
     char number_string[128];
     char c;
     size_t i = 0;
-    while(c = fgetc(fp) != EOF)
+    while((c = fgetc(fp)) != ('\n' | '\0'))
     {
         if(isdigit(c))
         {
             number_string[i] = c;
             ++i;  
         }
+        number_string[i] = '\0';
     }
-    printf("%s\n", number_string);
+    int r;
+    r = strtol(number_string, NULL, 10);
+    
+    return r;
 }
