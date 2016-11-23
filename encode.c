@@ -8,6 +8,7 @@
 
 int get_int_value(FILE * fp);
 int get_hp(FILE * fp);
+int get_breed(FILE * fp, int, const char **);
 
 enum
 {
@@ -83,6 +84,8 @@ main(int argc, char *argv[])
         zerg_status.maxHp = get_int_value(fp);
         printf("%d\n", zerg_status.hp);
         printf("%d\n", zerg_status.maxHp);
+        zerg_status.type = get_breed(fp, number_of_breeds, breed);
+
         break;
     //Command type
     case 2:
@@ -140,3 +143,20 @@ int get_hp(FILE * fp)
     return r;   
 }
 
+int get_breed(FILE * fp, int number_of_breeds, const char **breed)
+{
+    char buf[128];
+    char messageString[128];
+
+    if (fgets(buf, sizeof(buf), fp) != NULL)
+    {
+        //Grabs name of zerg
+        for(size_t i = 0; i < strlen(buf); ++i)
+        {
+            messageString[i] = buf[i + data_offset];
+        }
+        messageString[strlen(messageString) - 1] = '\0';
+    }
+    printf("%s\n", breed[number_of_breeds - 1]);
+    return 1;
+}
