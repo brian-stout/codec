@@ -2,11 +2,20 @@
 #include <sysexits.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "packet.h"
 
 int get_int_value(FILE * fp);
+int get_hp(FILE * fp);
 
+enum
+{
+    //The decoder prints out 11 bytes of useless data for formatting.
+    //This value is used to offset indexes when the program needs
+    //to grab a value directly.
+    data_offset = 11
+};
 int
 main(int argc, char *argv[])
 {
@@ -42,6 +51,49 @@ main(int argc, char *argv[])
     printf("To       : %d\n", ntohs(zerg.dstId));
     printf("From     : %d\n", ntohs(zerg.srcId));
 
+    char messageString[128];
+    char buf[128];
+
+    struct zerg_status zerg_status;
+
+    switch(type)
+    {
+    //Message type
+    case 0:
+        if (fgets(messageString, sizeof(messageString), fp) != NULL)
+        {
+            //Remove the newline off the end
+            messageString[strlen(messageString) - 1] = '\0';
+            printf("%s\n", messageString); //DEBUG
+        }
+        break;
+    //Status type
+    case 1:
+        if (fgets(buf, sizeof(buf), fp) != NULL)
+        {
+            //Grabs name of zerg
+            for(size_t i = 0; i < strlen(buf); ++i)
+            {
+                messageString[i] = buf[i + data_offset];
+            }
+            messageString[strlen(messageString) - 1] = '\0';
+            printf("%s\n", messageString); //DEBUG
+        }
+        zerg_status.hp = get_hp(fp);
+        zerg_status.maxHp = get_int_value(fp);
+        printf("%d\n", zerg_status.hp);
+        printf("%d\n", zerg_status.maxHp);
+        break;
+    //Command type
+    case 2:
+        break;
+    //GPS type
+    case 3:
+        break;
+    //TODO: error handling
+    default:
+        printf("Packet corrupt!\n");
+    }
 }
 
 int
@@ -66,3 +118,25 @@ get_int_value(FILE * fp)
 
     return r;
 }
+
+int get_hp(FILE * fp)
+{
+    char numberString[128];
+    char c;
+    size_t i = 0;
+    while ((c = fgetc(fp)) != ('/'))
+    {
+        if (isdigit(c))
+        {
+            numberString[i] = c;
+            ++i;
+        }
+        numberString[i] = '\0';
+    }
+    int r;
+
+    r = strtol(numberString, NULL, 10);
+
+    return r;   
+}
+
