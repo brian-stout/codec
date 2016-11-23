@@ -27,9 +27,16 @@ main (int argc, char *argv[])
     struct zerg zerg;
     zerg.versionType = get_int_value(fp);
     zerg.versionType = zerg.versionType << 4;
-    zerg.id = get_int_value(fp);
-    zerg.srcId = get_int_value(fp);
-    zerg.dstId = get_int_value(fp);
+    zerg.versionType = zerg.versionType | get_int_value(fp);
+    zerg.id = htonl(get_int_value(fp));
+    zerg.dstId = htons(get_int_value(fp));
+    zerg.srcId = htons(get_int_value(fp));
+    int version = zerg.versionType >> 4;
+    //test stuff
+    printf("Version  : %d\n", version);
+    printf("Sequence : %d\n", ntohl(zerg.id));
+    printf("To       : %d\n", ntohs(zerg.dstId));
+    printf("From     : %d\n", ntohs(zerg.srcId));
 }
 
 int get_int_value(FILE *fp)

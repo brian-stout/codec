@@ -22,7 +22,7 @@ void print_status(struct zerg_status);
 
 void print_cmd(struct zerg_cmd, uint16_t cmdNum);
 
-void print_preface(struct zerg, int);
+void print_preface(struct zerg, int, int);
 
 int padding_check(struct pcap_packet, struct zerg);
 
@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 {
     if (argc != 2)
     {
-        printf("ERROR, USAGE: [decode/encode] [~/<filename>.pcap]\n");
+        printf("ERROR, USAGE: [decode] [~/<filename>.pcap]\n");
         return EX_USAGE;
     }
 
@@ -80,7 +80,7 @@ main(int argc, char *argv[])
         int version = zerg.versionType >> 4;
 
         //Prints out the initial packet communication information for every packet
-        print_preface(zerg, version);
+        print_preface(zerg, version, type);
 
         //For special packets which may have a variable message at the end
         //calculates the size of the message and mallocs the appropiate space
@@ -308,9 +308,10 @@ print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
 }
 
 void
-print_preface(struct zerg zerg, int version)
+print_preface(struct zerg zerg, int version, int type)
 {
     printf("Version  : %d\n", version);
+    printf("Type     : %d\n", type);
     printf("Sequence : %d\n", ntohl(zerg.id));
     printf("To       : %d\n", ntohs(zerg.dstId));
     printf("From     : %d\n", ntohs(zerg.srcId));

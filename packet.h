@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <arpa/inet.h>
 
 enum
 {
@@ -89,6 +90,7 @@ struct zerg_gps
     uint32_t speed:32;
     uint32_t accuracy:32;
 };
+
 
 struct zerg_status
 {
