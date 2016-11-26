@@ -7,7 +7,7 @@
 #include "packet.h"
 
 int get_int_value(FILE * fp);
-float get_float_value(FILE * fp);
+float get_float_value(FILE * fp, size_t);
 int get_hp(FILE * fp);
 int get_breed(FILE * fp, int, const char **);
 
@@ -57,6 +57,7 @@ main(int argc, char *argv[])
     char buf[128];
 
     struct zerg_status zerg_status;
+    struct zerg_gps zerg_gps;
 
     switch(type)
     {
@@ -92,7 +93,9 @@ main(int argc, char *argv[])
         printf("%s\n", breed[zerg_status.type]); //DEBUG
         printf("%d\n", zerg_status.armor);
         //TODO: Create a union to convert float to hex properly for zerg_status.speed
-        printf("%f\n", get_float_value(fp));
+        //      Can just reverse bin to float function in decode.c
+        //      or maybe it's not nessecarry and writing to binary just works
+        printf("%f\n", get_float_value(fp, 9));
 
         break;
     //Command type
@@ -100,6 +103,24 @@ main(int argc, char *argv[])
         break;
     //GPS type
     case 3:
+        /*
+        zerg_gps.latitude = get_float_value(fp, 9);
+        zerg_gps.longitude = get_float_value(fp, 9);
+        zerg_gps.altitude = get_float_value(fp, 4);
+        zerg_gps.bearing = get_float_value(fp, 9);
+        zerg_gps.speed = get_int_value(fp);
+        zerg_gps.accuracy = get_int_value(fp);
+        */
+        //Testing lines
+        printf("%f\n", get_float_value(fp, 9));
+        printf("%f\n", get_float_value(fp, 9));
+        printf("%f\n", get_float_value(fp, 4));
+        printf("%f\n", get_float_value(fp, 9));
+        zerg_gps.speed = get_int_value(fp);
+        zerg_gps.accuracy = get_int_value(fp);
+        printf("%d\n", zerg_gps.speed);
+        printf("%d\n", zerg_gps.accuracy);
+
         break;
     //TODO: error handling
     default:
@@ -178,20 +199,24 @@ int get_breed(FILE * fp, int number_of_breeds, const char **breed)
     return r;
 }
 
-float get_float_value(FILE * fp)
+float get_float_value(FILE * fp, size_t lengthOfFloat)
 {
     char buf[128];
     char numberString[128];
+    char secondNumberString[128];
+    size_t secondDigitLength = lengthOfFloat;
 
     if (fgets(buf, sizeof(buf), fp) != NULL)
     {
-        //Grabs name of zerg
-        for(size_t i = 0; i < strlen(buf); ++i)
+        //Grabs the number 
+        for(size_t i = 0; i < lengthOfFloat; ++i)
         {
             numberString[i] = buf[i + data_offset];
+
         }
-        numberString[strlen(numberString) - 1] = '\0';
+        numberString[lengthOfFloat + 1] = '\0';
     }
-    float r = strtof(numberString, NULL);
+
+    float r = strtod(numberString, NULL);
     return r;
 }
