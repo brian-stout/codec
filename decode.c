@@ -115,12 +115,14 @@ main(int argc, char *argv[])
 
         switch (type)
         {
+        //Message type
         case 0:
             fread(zergString, zergStringSize, 1, fp);
             //Sets the extra char space to null so string is null terminated
             zergString[zergStringSize] = '\0';
             printf("%s\n", zergString);
             break;
+        //Satus type
         case 1:
             fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
             fread(zergString, zergStringSize, 1, fp);
@@ -128,6 +130,7 @@ main(int argc, char *argv[])
             printf("Name     : %s\n", zergString);
             print_status(zerg_status);
             break;
+        //Command type
         case 2:
             fread(&cmdNum, sizeof(cmdNum), 1, fp);
             cmdNum = ntohs(cmdNum);
@@ -141,10 +144,12 @@ main(int argc, char *argv[])
                 print_cmd(zerg_cmd, cmdNum);
             }
             break;
+        //GPS type
         case 3:
             fread(&zerg_gps, sizeof(struct zerg_gps), 1, fp);
             print_gps(zerg_gps);
             break;
+        //TODO: Error handling
         default:
             printf("Packet corrupt!\n");
         }
@@ -282,9 +287,9 @@ print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
     switch (cmd)
     {
     case 1:
-        printf("Command  : %s ", command[cmd]);
-        printf("%.2f deg. ", bin_to_float(ntohs(zerg_cmd.param1)));
-        printf("%d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
+        printf("Command  : %s\n", command[cmd]);
+        printf("Direction: %.2f deg. \n", bin_to_float(ntohs(zerg_cmd.param1)));
+        printf("Distance : %d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
         break;
     case 5:
         printf("Command  : %s ", command[cmd]);
