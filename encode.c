@@ -95,14 +95,16 @@ main(int argc, char *argv[])
         zerg_status.maxHp = get_int_value(fp);
         zerg_status.type = get_word_index(fp, NUMBER_OF_BREEDS, breed);
         zerg_status.armor = get_int_value(fp);
+        zerg_status.speed = doub_to_bin(get_double(fp, 9));
         printf("%d\n", zerg_status.hp); //DEBUG
         printf("%d\n", zerg_status.maxHp); //DEBUG
         printf("%s\n", breed[zerg_status.type]); //DEBUG
         printf("%d\n", zerg_status.armor);
+        printf("%x\n", zerg_status.speed);
         //TODO: Create a union to convert float to hex properly for zerg_status.speed
         //      Can just reverse bin to float function in decode.c
         //      or maybe it's not nessecarry and writing to binary just works
-        printf("%lf\n", get_double(fp, 9));
+
         break;
     //Command type
     case 2:
@@ -116,8 +118,9 @@ main(int argc, char *argv[])
             switch (cmdNum)
             {
             case 1:
-                printf("%f\n", get_float(fp, 4));
+                zerg_cmd.param1 = doub_to_bin(get_float(fp, 4));
                 zerg_cmd.param2 = get_int_value(fp);
+                printf("%x\n", zerg_cmd.param1);
                 printf("%d\n", zerg_cmd.param2);
                 break;
             case 5:
@@ -137,21 +140,17 @@ main(int argc, char *argv[])
         break;
     //GPS type
     case 3:
-        /* TODO: Gonna need UINT32 conversions here
-        zerg_gps.latitude = get_float(fp, 9);
-        zerg_gps.longitude = get_float(fp, 9);
-        zerg_gps.altitude = get_float(fp, 4);
-        zerg_gps.bearing = get_float(fp, 9);
+        //TODO: Write custom function to grab NESW at the end
+        zerg_gps.longitude = doub_to_bin(get_double(fp, 9));
+        zerg_gps.latitude = doub_to_bin(get_double(fp, 9));
+        zerg_gps.altitude = float_to_bin(get_float(fp, 4));
+        zerg_gps.bearing = float_to_bin(get_float(fp, 9));
         zerg_gps.speed = get_int_value(fp);
         zerg_gps.accuracy = get_int_value(fp);
-        */
-        //Testing lines
-        printf("%lf\n", get_double(fp, 9));
-        printf("%lf\n", get_double(fp, 9));
-        printf("%f\n", get_float(fp, 4));
-        printf("%lf\n", get_double(fp, 9));
-        zerg_gps.speed = get_int_value(fp);
-        zerg_gps.accuracy = get_int_value(fp);
+        printf("%lx\n", zerg_gps.longitude);
+        printf("%lx\n", zerg_gps.latitude);
+        printf("%x\n", zerg_gps.altitude);
+        printf("%x\n", zerg_gps.bearing);
         printf("%d\n", zerg_gps.speed);
         printf("%d\n", zerg_gps.accuracy);
         break;
