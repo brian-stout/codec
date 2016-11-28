@@ -143,16 +143,14 @@ main(int argc, char *argv[])
         //TODO: Write custom function to grab NESW at the end
         zerg_gps.latitude = doub_to_bin(get_double(fp, 12));
         zerg_gps.longitude = doub_to_bin(get_double(fp, 12));
-
-        //zerg_gps.altitude = float_to_bin(get_float(fp, 4));
-        //zerg_gps.bearing = float_to_bin(get_float(fp, 9));
-        printf("%lx\n", zerg_gps.latitude);
-        printf("%lx\n", zerg_gps.longitude);
-
-        printf("%f\n", get_float(fp, 4));
-        printf("%f\n", get_float(fp, 9));
+        zerg_gps.altitude = float_to_bin(get_float(fp, 4));
+        zerg_gps.bearing = float_to_bin(get_float(fp, 9));
         zerg_gps.speed = get_int_value(fp);
         zerg_gps.accuracy = get_int_value(fp);
+        printf("%lx\n", zerg_gps.latitude);
+        printf("%lx\n", zerg_gps.longitude);
+        printf("%x\n", zerg_gps.altitude);
+        printf("%x\n", zerg_gps.bearing);
         printf("%d\n", zerg_gps.speed);
         printf("%d\n", zerg_gps.accuracy);
         break;
