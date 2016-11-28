@@ -180,35 +180,37 @@ main(int argc, char *argv[])
     //Command type
     case 2:
         cmdNum = get_word_index(fp, NUMBER_OF_COMMANDS, command);
+        fwrite(&cmdNum, sizeof(cmdNum), 1, fileOut);
         if (!cmdNum % 2)
         {
-            printf("%s\n", command[cmdNum]);
             payloadSize = 2;
         }
         else
         {
             payloadSize = 8;
+            
+            //TODO: Fix repeated code
             switch (cmdNum)
             {
             case 1:
-                zerg_cmd.param1 = doub_to_bin(get_float(fp, 4));
-                zerg_cmd.param2 = get_int_value(fp);
-                printf("%x\n", zerg_cmd.param1);
-                printf("%d\n", zerg_cmd.param2);
+                zerg_cmd.param1 = htons(doub_to_bin(get_float(fp, 4)));
+                zerg_cmd.param2 = htonl(get_int_value(fp));
+
                 break;
             case 5:
-                zerg_cmd.param2 = get_int_value(fp);
-                zerg_cmd.param1 = get_word_index(fp, 2, boolWord);
-                printf("DEBUG: %d\n", zerg_cmd.param2);
-                printf("DEBUG: %d\n", zerg_cmd.param1);
+                zerg_cmd.param2 = htonl(get_int_value(fp));
+                zerg_cmd.param1 = htons(get_word_index(fp, 2, boolWord));
+
                 break;
             case 7:
-                zerg_cmd.param2 = get_int_value(fp);
-                printf("DEBUG: %d\n", zerg_cmd.param2);
+                zerg_cmd.param2 = htonl(get_int_value(fp));
+                zerg_cmd.param1 = 0x0;
                 break;
             default:
                 break;
             }
+
+            fwrite(&zerg_cmd, sizeof(zerg_cmd), 1, fileOut);
         }
         break;
     //GPS type
