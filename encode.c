@@ -32,6 +32,7 @@ main(int argc, char *argv[])
         return EX_USAGE;
     }
 
+
     FILE *fp = fopen(argv[1], "r");
 
     if (!fp)
@@ -39,6 +40,12 @@ main(int argc, char *argv[])
         printf("Unable to open file!\n");
         return EX_USAGE;
     }
+
+    char writeToString[64];
+    strncpy(writeToString, argv[1], sizeof(writeToString));
+    strncat(writeToString, ".pcap", sizeof(writeToString));
+
+    FILE *fileOut = fopen(writeToString, "wb");
 
     struct zerg zerg;
 
@@ -158,6 +165,7 @@ main(int argc, char *argv[])
     default:
         printf("Packet corrupt!\n");
     }
+
 }
 
 int
