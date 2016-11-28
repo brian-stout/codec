@@ -246,10 +246,8 @@ print_gps(struct zerg_gps zerg_gps)
         direction = 'S';
         latitude *= -1;
     }
-    printf("Latitude : %lf deg. %c\n", latitude, direction);
-
+    printf("Latitude : %.9lf deg. %c\n", latitude, direction);
     double longitude = bin_to_doub(ntohll(zerg_gps.longitude));
-
     if (longitude > 0)
     {
         direction = 'E';
@@ -259,7 +257,7 @@ print_gps(struct zerg_gps zerg_gps)
         direction = 'W';
         longitude *= -1;
     }
-    printf("Longitude: %lf deg. %c\n", longitude, direction);
+    printf("Longitude: %.9lf deg. %c\n", longitude, direction);
 
     printf("Altitude : %.1fm\n", bin_to_float(ntohl(zerg_gps.altitude)) * 1.8288);
     printf("Bearing  : %f deg.\n", bin_to_float(ntohl(zerg_gps.bearing)));
