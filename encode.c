@@ -141,16 +141,17 @@ main(int argc, char *argv[])
     //GPS type
     case 3:
         //TODO: Write custom function to grab NESW at the end
-        zerg_gps.longitude = doub_to_bin(get_double(fp, 9));
-        zerg_gps.latitude = doub_to_bin(get_double(fp, 9));
-        zerg_gps.altitude = float_to_bin(get_float(fp, 4));
-        zerg_gps.bearing = float_to_bin(get_float(fp, 9));
+        //zerg_gps.longitude = doub_to_bin(get_double(fp, 9));
+        //zerg_gps.latitude = doub_to_bin(get_double(fp, 9));
+        //zerg_gps.altitude = float_to_bin(get_float(fp, 4));
+        //zerg_gps.bearing = float_to_bin(get_float(fp, 9));
+
+        printf("%lf\n", get_double(fp, 9));
+        printf("%lf\n", get_double(fp, 9));
+        printf("%f\n", get_float(fp, 4));
+        printf("%f\n", get_float(fp, 9));
         zerg_gps.speed = get_int_value(fp);
         zerg_gps.accuracy = get_int_value(fp);
-        printf("%lx\n", zerg_gps.longitude);
-        printf("%lx\n", zerg_gps.latitude);
-        printf("%x\n", zerg_gps.altitude);
-        printf("%x\n", zerg_gps.bearing);
         printf("%d\n", zerg_gps.speed);
         printf("%d\n", zerg_gps.accuracy);
         break;
@@ -269,6 +270,13 @@ double get_double(FILE * fp, size_t lengthOfString)
     }
 
     double r = strtod(numberString, NULL);
+
+    //TODO: 2 is magic number
+    //Checks to see if value should be negative or positive
+    if (buf[strlen(buf) - 2] == ('S' | 'W'))
+    {
+        r *= -1;
+    }
     return r;
 }
 
