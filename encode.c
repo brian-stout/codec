@@ -47,6 +47,27 @@ main(int argc, char *argv[])
 
     FILE *fileOut = fopen(writeToString, "wb");
 
+    //TODO: Put this in an initializer function
+    struct pcap_global pcap_global;
+    pcap_global.identifier = 0xa1b2c3d4;
+    pcap_global.majVersion = 0x2;
+    pcap_global.minVersion = 0x4;
+    pcap_global.timezone = 0x0;
+    pcap_global.accuracyData = 0x0;
+    pcap_global.maxLength = 0x0;
+    pcap_global.linkLayerHeaderType = 0x1;
+
+    fwrite(&pcap_global, sizeof(struct pcap_global), 1, fileOut);
+
+    struct pcap_packet pcap_packet;
+    pcap_packet.unixEpoch = 0x0;
+    pcap_packet.microseconds = 0x0;
+    //TODO:Calculate length here
+    pcap_packet.sizeFile = 0x0; 
+    pcap_packet.sizeWire = sizeFile;
+
+    fwrite(&pcap_packet, sizeof(struct pcap_packet), 1, fileout);   
+
     struct zerg zerg;
 
     zerg.versionType = get_int_value(fp);
