@@ -15,6 +15,7 @@ void process_cmd(FILE *, struct zerg_cmd *, uint16_t);
 uint64_t doub_to_bin(double);
 uint32_t float_to_bin(float);
 uint64_t htonll(uint64_t);
+uint32_t hton24(uint32_t i);
 
 enum
 {
@@ -165,17 +166,15 @@ main(int argc, char *argv[])
             }
             messageString[strlen(messageString) - 1] = '\0';
             payloadSize = 12 + strlen(messageString);
-            printf("%s\n", messageString); //DEBUG
         }
-        zerg_status.hp = get_hp(fp);
-        zerg_status.maxHp = get_int_value(fp);
+        zerg_status.hp = hton24(get_hp(fp));
+        zerg_status.maxHp = hton24(get_int_value(fp));
         zerg_status.type = get_word_index(fp, NUMBER_OF_BREEDS, breed);
         zerg_status.armor = get_int_value(fp);
-        zerg_status.speed = doub_to_bin(get_double(fp, 9));
+        zerg_status.speed = htonl(float_to_bin(get_float(fp, 9)));
         
-        //TODO: Create a union to convert float to hex properly for zerg_status.speed
-        //      Can just reverse bin to float function in decode.c
-        //      or maybe it's not nessecarry and writing to binary just works
+        fwrite(&zerg_status, sizeof(struct zerg_status), 1, fileOut);
+        fwrite(messageString, strlen(messageString), 1, fileOut);
 
         break;
     //Command type
@@ -389,4 +388,17 @@ htonll(uint64_t i)
     r = r << 32;
     r = r | htonl(a);
     return r;
+}
+
+uint32_t
+hton24(uint32_t i)
+{
+    uint32_t a = i & 0xffff;
+
+    a = htons(a);
+    a <<= 8;
+    i >>= 16;
+    i = i | a;
+
+    return i;
 }
