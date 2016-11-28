@@ -6,14 +6,14 @@
 
 #include "packet.h"
 
-int get_int_value(FILE * fp);
-float get_float_value(FILE * fp, size_t);
-int get_hp(FILE * fp);
+int get_int_value(FILE *);
+float get_float(FILE *, size_t);
+int get_hp(FILE *);
 int get_word_index(FILE *, int, const char **);
-double get_double_value(FILE * fp, size_t lengthOfString);
-void process_cmd(struct zerg_cmd *, uint16_t);
-uint64_t doub_to_bin(double a);
-uint32_t float_to_bin(float a);
+double get_double(FILE *, size_t);
+void process_cmd(FILE *, struct zerg_cmd *, uint16_t);
+uint64_t doub_to_bin(double);
+uint32_t float_to_bin(float);
 
 enum
 {
@@ -22,6 +22,7 @@ enum
     //to grab a value directly.
     data_offset = 11
 };
+
 int
 main(int argc, char *argv[])
 {
@@ -101,7 +102,7 @@ main(int argc, char *argv[])
         //TODO: Create a union to convert float to hex properly for zerg_status.speed
         //      Can just reverse bin to float function in decode.c
         //      or maybe it's not nessecarry and writing to binary just works
-        printf("%lf\n", get_double_value(fp, 9));
+        printf("%lf\n", get_double(fp, 9));
         break;
     //Command type
     case 2:
@@ -112,24 +113,43 @@ main(int argc, char *argv[])
         }
         else
         {
-            process_cmd(&zerg_cmd, uint16_t);
+            switch (cmdNum)
+            {
+            case 1:
+                printf("%f\n", get_float(fp, 4));
+                zerg_cmd.param2 = get_int_value(fp);
+                printf("%d\n", zerg_cmd.param2);
+                break;
+            case 5:
+                zerg_cmd.param2 = get_int_value(fp);
+                zerg_cmd.param1 = get_word_index(fp, 2, boolWord);
+                printf("DEBUG: %d\n", zerg_cmd.param2);
+                printf("DEBUG: %d\n", zerg_cmd.param1);
+                break;
+            case 7:
+                zerg_cmd.param2 = get_int_value(fp);
+                printf("DEBUG: %d\n", zerg_cmd.param2);
+                break;
+            default:
+                break;
+            }
         }
         break;
     //GPS type
     case 3:
         /* TODO: Gonna need UINT32 conversions here
-        zerg_gps.latitude = get_float_value(fp, 9);
-        zerg_gps.longitude = get_float_value(fp, 9);
-        zerg_gps.altitude = get_float_value(fp, 4);
-        zerg_gps.bearing = get_float_value(fp, 9);
+        zerg_gps.latitude = get_float(fp, 9);
+        zerg_gps.longitude = get_float(fp, 9);
+        zerg_gps.altitude = get_float(fp, 4);
+        zerg_gps.bearing = get_float(fp, 9);
         zerg_gps.speed = get_int_value(fp);
         zerg_gps.accuracy = get_int_value(fp);
         */
         //Testing lines
-        printf("%lf\n", get_double_value(fp, 9));
-        printf("%lf\n", get_double_value(fp, 9));
-        printf("%f\n", get_float_value(fp, 4));
-        printf("%lf\n", get_double_value(fp, 9));
+        printf("%lf\n", get_double(fp, 9));
+        printf("%lf\n", get_double(fp, 9));
+        printf("%f\n", get_float(fp, 4));
+        printf("%lf\n", get_double(fp, 9));
         zerg_gps.speed = get_int_value(fp);
         zerg_gps.accuracy = get_int_value(fp);
         printf("%d\n", zerg_gps.speed);
@@ -193,7 +213,7 @@ int get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
 
     if (fgets(buf, sizeof(buf), fp) != NULL)
     {
-        //Grabs name of zerg
+        //Grabs the word being compared
         for(size_t i = 0; i < strlen(buf); ++i)
         {
             messageString[i] = buf[i + data_offset];
@@ -212,7 +232,8 @@ int get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
     return r;
 }
 
-float get_float_value(FILE * fp, size_t lengthOfString)
+//TODO: Make it not rely on a length, just look for a space
+float get_float(FILE * fp, size_t lengthOfString)
 {
     char buf[128];
     char numberString[128];
@@ -232,7 +253,7 @@ float get_float_value(FILE * fp, size_t lengthOfString)
     return r;
 }
 
-double get_double_value(FILE * fp, size_t lengthOfString)
+double get_double(FILE * fp, size_t lengthOfString)
 {
     char buf[128];
     char numberString[128];
@@ -250,37 +271,6 @@ double get_double_value(FILE * fp, size_t lengthOfString)
 
     double r = strtod(numberString, NULL);
     return r;
-}
-
-void
-process_cmd(struct zerg_cmd * zerg_cmd, uint16_t cmdNum)
-{
-    unsigned int cmd = cmdNum;
-
-    switch (cmd)
-    {
-    case 1:
-        printf("%.2f deg. ", bin_to_float(ntohs(zerg_cmd.param1)));
-        printf("%d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
-        break;
-    case 5:
-        printf("%d ", ntohl(zerg_cmd.param2));
-        if (ntohs(zerg_cmd.param1))
-        {
-            printf("TRUE\n");
-        }
-        else
-        {
-            printf("FALSE\n");
-        }
-        break;
-    case 7:
-        printf("Command  : %s ", command[cmd]);
-        printf("sequence %d\n", ntohl(zerg_cmd.param2));
-        break;
-    default:
-        break;
-    }
 }
 
 uint32_t
@@ -304,5 +294,5 @@ uint64_t doub_to_bin(double a)
         uint64_t uint;
     } u;
     u.b = a;
-    return uint;
+    return u.uint;
 }
