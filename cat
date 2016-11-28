@@ -1,0 +1,11 @@
+Version  : 1
+Type     : 3
+Sequence : 81
+To       : 6600
+From     : 1337
+Latitude : 87.918287 deg. N
+Longitude: 32.234523 deg. W
+Altitude : 43.5m
+Bearing  : 47.833332 deg.
+Speed    : 100 km/s
+Accuracy : 5m

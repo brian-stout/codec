@@ -1,0 +1,6 @@
+Version  : 1
+Type     : 2
+Sequence : 8
+To       : 1337
+From     : 7890
+Command  : GET_STATUS
