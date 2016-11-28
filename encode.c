@@ -11,6 +11,9 @@ float get_float_value(FILE * fp, size_t);
 int get_hp(FILE * fp);
 int get_word_index(FILE *, int, const char **);
 double get_double_value(FILE * fp, size_t lengthOfString);
+void process_cmd(struct zerg_cmd *, uint16_t);
+uint64_t doub_to_bin(double a);
+uint32_t float_to_bin(float a);
 
 enum
 {
@@ -109,8 +112,7 @@ main(int argc, char *argv[])
         }
         else
         {
-            fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
-            print_cmd(zerg_cmd, cmdNum);
+            process_cmd(&zerg_cmd, uint16_t);
         }
         break;
     //GPS type
@@ -248,4 +250,59 @@ double get_double_value(FILE * fp, size_t lengthOfString)
 
     double r = strtod(numberString, NULL);
     return r;
+}
+
+void
+process_cmd(struct zerg_cmd * zerg_cmd, uint16_t cmdNum)
+{
+    unsigned int cmd = cmdNum;
+
+    switch (cmd)
+    {
+    case 1:
+        printf("%.2f deg. ", bin_to_float(ntohs(zerg_cmd.param1)));
+        printf("%d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
+        break;
+    case 5:
+        printf("%d ", ntohl(zerg_cmd.param2));
+        if (ntohs(zerg_cmd.param1))
+        {
+            printf("TRUE\n");
+        }
+        else
+        {
+            printf("FALSE\n");
+        }
+        break;
+    case 7:
+        printf("Command  : %s ", command[cmd]);
+        printf("sequence %d\n", ntohl(zerg_cmd.param2));
+        break;
+    default:
+        break;
+    }
+}
+
+uint32_t
+float_to_bin(float a)
+{
+    union
+    {
+        float b;
+        uint32_t uint;
+    } u;
+    
+    u.b = a;
+    return u.uint;     
+}
+
+uint64_t doub_to_bin(double a)
+{
+    union
+    {
+        double b;
+        uint64_t uint;
+    } u;
+    u.b = a;
+    return uint;
 }
