@@ -67,6 +67,7 @@ main(int argc, char *argv[])
 
     fwrite(&pcap_global, sizeof(struct pcap_global), 1, fileOut);
 
+    //Intialize values section
     struct pcap_packet pcap_packet;
     pcap_packet.unixEpoch = 0x0;
     pcap_packet.microseconds = 0x0;
