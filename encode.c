@@ -9,7 +9,7 @@
 int get_int_value(FILE * fp);
 float get_float_value(FILE * fp, size_t);
 int get_hp(FILE * fp);
-int get_breed(FILE * fp, int, const char **);
+int get_word_index(FILE *, int, const char **);
 double get_double_value(FILE * fp, size_t lengthOfString);
 
 enum
@@ -58,6 +58,8 @@ main(int argc, char *argv[])
     char buf[128];
 
     struct zerg_status zerg_status;
+    struct zerg_cmd zerg_cmd;
+    uint16_t cmdNum;
     struct zerg_gps zerg_gps;
 
     switch(type)
@@ -87,7 +89,7 @@ main(int argc, char *argv[])
         }
         zerg_status.hp = get_hp(fp);
         zerg_status.maxHp = get_int_value(fp);
-        zerg_status.type = get_breed(fp, number_of_breeds, breed);
+        zerg_status.type = get_word_index(fp, NUMBER_OF_BREEDS, breed);
         zerg_status.armor = get_int_value(fp);
         printf("%d\n", zerg_status.hp); //DEBUG
         printf("%d\n", zerg_status.maxHp); //DEBUG
@@ -96,11 +98,11 @@ main(int argc, char *argv[])
         //TODO: Create a union to convert float to hex properly for zerg_status.speed
         //      Can just reverse bin to float function in decode.c
         //      or maybe it's not nessecarry and writing to binary just works
-        printf("%f\n", get_float_value(fp, 9));
-
+        printf("%lf\n", get_double_value(fp, 9));
         break;
     //Command type
     case 2:
+        cmdNum = get_word_index(fp, NUMBER_OF_COMMANDS, command);
         break;
     //GPS type
     case 3:
@@ -172,7 +174,7 @@ int get_hp(FILE * fp)
     return r;   
 }
 
-int get_breed(FILE * fp, int number_of_breeds, const char **breed)
+int get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
 {
     char buf[128];
     char messageString[128];
@@ -187,10 +189,10 @@ int get_breed(FILE * fp, int number_of_breeds, const char **breed)
         }
         messageString[strlen(messageString) - 1] = '\0';
     }
-    for(int i = 0; i < number_of_breeds; ++i)
+    for(int i = 0; i < numberOfWords; ++i)
     {
         //TODO: Correct use of strlen in strncmp?
-        if(!strncmp(messageString, breed[i], strlen(breed[i])))
+        if(!strncmp(messageString, wordArray[i], strlen(wordArray[i])))
         {
             r = i;
             break;
