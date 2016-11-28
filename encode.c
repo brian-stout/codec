@@ -14,6 +14,7 @@ double get_double(FILE *, size_t);
 void process_cmd(FILE *, struct zerg_cmd *, uint16_t);
 uint64_t doub_to_bin(double);
 uint32_t float_to_bin(float);
+uint64_t htonll(uint64_t);
 
 enum
 {
@@ -21,6 +22,12 @@ enum
     //This value is used to offset indexes when the program needs
     //to grab a value directly.
     data_offset = 11
+};
+
+enum
+{
+    //The size of static bytes for the zerg_packet_header (minus the payload)
+    zerg_packet_header = 12
 };
 
 int
@@ -64,20 +71,57 @@ main(int argc, char *argv[])
     pcap_packet.microseconds = 0x0;
     //TODO:Calculate length here
     pcap_packet.sizeFile = 0x0; 
-    pcap_packet.sizeWire = sizeFile;
+    pcap_packet.sizeWire = pcap_packet.sizeFile;
 
-    fwrite(&pcap_packet, sizeof(struct pcap_packet), 1, fileout);   
+    fwrite(&pcap_packet, sizeof(struct pcap_packet), 1, fileOut);
+
+    struct ethernet ethernet;
+    ethernet.dst = 0x0;
+    ethernet.dst2 = 0x0;
+    ethernet.src = 0x0;
+    ethernet.src2 = 0x0;
+    ethernet.type = 0x8;
+
+    fwrite(&ethernet, sizeof(struct ethernet), 1, fileOut);
+
+    struct ipv4 ipv4;
+    ipv4.versionIHL = 0x45;
+    ipv4.DSCP_ECN = 0x0;
+    //TODO: Calculate a length here
+    ipv4.totalLen = 0x0;
+    ipv4.id = 0x0;
+    ipv4.flagsFragOffset = 0x0;
+    ipv4.ttlProto = 0x1100;
+    ipv4.check = 0x0;
+    ipv4.src = 0x0;
+    ipv4.dst = 0x0;
+
+    fwrite(&ipv4, sizeof(struct ipv4), 1, fileOut);
+
+    struct udp udp;
+
+    udp.src = 0x0;
+    udp.dst = 0xA70E;
+    //TODO: Calculate a length here
+    udp.len = 0x0;
+    udp.check = 0x0;
+
+    fwrite(&udp, sizeof(struct udp), 1, fileOut);
 
     struct zerg zerg;
 
     zerg.versionType = get_int_value(fp);
     zerg.versionType = zerg.versionType << 4;
     zerg.versionType = zerg.versionType | get_int_value(fp);
+    //TODO: Calculate a length here
+    zerg.len = 0x0;
     zerg.id = htonl(get_int_value(fp));
     zerg.dstId = htons(get_int_value(fp));
     zerg.srcId = htons(get_int_value(fp));
     int type = zerg.versionType & 0xf;
     int version = zerg.versionType >> 4;
+
+    fwrite(&zerg, sizeof(struct zerg), 1, fileOut);
 
     //test stuff
     printf("Version  : %d\n", version);
@@ -94,6 +138,8 @@ main(int argc, char *argv[])
     uint16_t cmdNum;
     struct zerg_gps zerg_gps;
 
+    size_t payloadSize = 0;
+
     switch(type)
     {
     //Message type
@@ -103,7 +149,8 @@ main(int argc, char *argv[])
         {
             //Remove the newline off the end
             messageString[strlen(messageString) - 1] = '\0';
-            printf("%s\n", messageString); //DEBUG
+            fwrite(messageString, strlen(messageString), 1, fileOut);
+            payloadSize = strlen(messageString);
         }
         break;
     //Status type
@@ -117,6 +164,7 @@ main(int argc, char *argv[])
                 messageString[i] = buf[i + data_offset];
             }
             messageString[strlen(messageString) - 1] = '\0';
+            payloadSize = 12 + strlen(messageString);
             printf("%s\n", messageString); //DEBUG
         }
         zerg_status.hp = get_hp(fp);
@@ -124,11 +172,7 @@ main(int argc, char *argv[])
         zerg_status.type = get_word_index(fp, NUMBER_OF_BREEDS, breed);
         zerg_status.armor = get_int_value(fp);
         zerg_status.speed = doub_to_bin(get_double(fp, 9));
-        printf("%d\n", zerg_status.hp); //DEBUG
-        printf("%d\n", zerg_status.maxHp); //DEBUG
-        printf("%s\n", breed[zerg_status.type]); //DEBUG
-        printf("%d\n", zerg_status.armor);
-        printf("%x\n", zerg_status.speed);
+        
         //TODO: Create a union to convert float to hex properly for zerg_status.speed
         //      Can just reverse bin to float function in decode.c
         //      or maybe it's not nessecarry and writing to binary just works
@@ -140,9 +184,11 @@ main(int argc, char *argv[])
         if (!cmdNum % 2)
         {
             printf("%s\n", command[cmdNum]);
+            payloadSize = 2;
         }
         else
         {
+            payloadSize = 8;
             switch (cmdNum)
             {
             case 1:
@@ -169,18 +215,15 @@ main(int argc, char *argv[])
     //GPS type
     case 3:
         //TODO: Write custom function to grab NESW at the end
-        zerg_gps.latitude = doub_to_bin(get_double(fp, 12));
-        zerg_gps.longitude = doub_to_bin(get_double(fp, 12));
-        zerg_gps.altitude = float_to_bin(get_float(fp, 4));
-        zerg_gps.bearing = float_to_bin(get_float(fp, 9));
-        zerg_gps.speed = get_int_value(fp);
-        zerg_gps.accuracy = get_int_value(fp);
-        printf("%lx\n", zerg_gps.latitude);
-        printf("%lx\n", zerg_gps.longitude);
-        printf("%x\n", zerg_gps.altitude);
-        printf("%x\n", zerg_gps.bearing);
-        printf("%d\n", zerg_gps.speed);
-        printf("%d\n", zerg_gps.accuracy);
+        zerg_gps.latitude = htonll(doub_to_bin(get_double(fp, 12)));
+        zerg_gps.longitude = htonll(doub_to_bin(get_double(fp, 12)));
+        //Not going to have a exact Hex
+        zerg_gps.altitude = htonl(float_to_bin(get_float(fp, 4) / 1.8288));
+        zerg_gps.bearing = htonl(float_to_bin(get_float(fp, 9)));
+        zerg_gps.speed = htonl(float_to_bin((float)get_int_value(fp) / 3.6));
+        zerg_gps.accuracy = htonl(float_to_bin((float)get_int_value(fp)));
+        fwrite(&zerg_gps, sizeof(struct zerg_gps), 1, fileOut);
+        payloadSize = 38;
         break;
     //TODO: error handling
     default:
@@ -330,4 +373,20 @@ uint64_t doub_to_bin(double a)
     } u;
     u.b = a;
     return u.uint;
+}
+
+uint64_t
+htonll(uint64_t i)
+{
+    //TODO: Save a few lines by removing an unnessecary variable
+    uint32_t a;
+    uint32_t b;
+    uint64_t r = 0;
+
+    a = i >> 32;
+    b = i;
+    r = r | htonl(b);
+    r = r << 32;
+    r = r | htonl(a);
+    return r;
 }
