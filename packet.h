@@ -11,6 +11,16 @@ enum
     packet_minus_zerg = 42
 };
 
+enum
+{
+    NUMBER_OF_BREEDS = 16
+};
+
+enum
+{
+    NUMBER_OF_COMMANDS = 8
+};
+
 struct __attribute__ ((packed)) pcap_global
 {
     uint32_t identifier:32;
@@ -79,6 +89,10 @@ struct __attribute__ ((packed)) zerg_cmd
 const char *command[] = {
     "GET_STATUS", "GOTO", "GET_GPS", "RESERVED",
     "RETURN", "SET_GROUP", "STOP", "REPEAT"
+};
+
+const char *boolWord[] = {
+    "FALSE", "TRUE"
 };
 
 struct zerg_gps
