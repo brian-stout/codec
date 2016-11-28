@@ -10,6 +10,7 @@ int get_int_value(FILE * fp);
 float get_float_value(FILE * fp, size_t);
 int get_hp(FILE * fp);
 int get_breed(FILE * fp, int, const char **);
+double get_double_value(FILE * fp, size_t lengthOfString);
 
 enum
 {
@@ -103,7 +104,7 @@ main(int argc, char *argv[])
         break;
     //GPS type
     case 3:
-        /*
+        /* TODO: Gonna need UINT32 conversions here
         zerg_gps.latitude = get_float_value(fp, 9);
         zerg_gps.longitude = get_float_value(fp, 9);
         zerg_gps.altitude = get_float_value(fp, 4);
@@ -112,15 +113,14 @@ main(int argc, char *argv[])
         zerg_gps.accuracy = get_int_value(fp);
         */
         //Testing lines
-        printf("%f\n", get_float_value(fp, 9));
-        printf("%f\n", get_float_value(fp, 9));
+        printf("%lf\n", get_double_value(fp, 9));
+        printf("%lf\n", get_double_value(fp, 9));
         printf("%f\n", get_float_value(fp, 4));
-        printf("%f\n", get_float_value(fp, 9));
+        printf("%lf\n", get_double_value(fp, 9));
         zerg_gps.speed = get_int_value(fp);
         zerg_gps.accuracy = get_int_value(fp);
         printf("%d\n", zerg_gps.speed);
         printf("%d\n", zerg_gps.accuracy);
-
         break;
     //TODO: error handling
     default:
@@ -199,24 +199,42 @@ int get_breed(FILE * fp, int number_of_breeds, const char **breed)
     return r;
 }
 
-float get_float_value(FILE * fp, size_t lengthOfFloat)
+float get_float_value(FILE * fp, size_t lengthOfString)
 {
     char buf[128];
     char numberString[128];
-    char secondNumberString[128];
-    size_t secondDigitLength = lengthOfFloat;
 
     if (fgets(buf, sizeof(buf), fp) != NULL)
     {
         //Grabs the number 
-        for(size_t i = 0; i < lengthOfFloat; ++i)
+        for(size_t i = 0; i < lengthOfString; ++i)
         {
             numberString[i] = buf[i + data_offset];
 
         }
-        numberString[lengthOfFloat + 1] = '\0';
+        numberString[lengthOfString + 1] = '\0';
     }
 
-    float r = strtod(numberString, NULL);
+    float r = strtof(numberString, NULL);
+    return r;
+}
+
+double get_double_value(FILE * fp, size_t lengthOfString)
+{
+    char buf[128];
+    char numberString[128];
+
+    if (fgets(buf, sizeof(buf), fp) != NULL)
+    {
+        //Grabs the number 
+        for(size_t i = 0; i < lengthOfString; ++i)
+        {
+            numberString[i] = buf[i + data_offset];
+
+        }
+        numberString[lengthOfString + 1] = '\0';
+    }
+
+    double r = strtod(numberString, NULL);
     return r;
 }
