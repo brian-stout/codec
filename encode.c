@@ -103,6 +103,15 @@ main(int argc, char *argv[])
     //Command type
     case 2:
         cmdNum = get_word_index(fp, NUMBER_OF_COMMANDS, command);
+        if (!cmdNum % 2)
+        {
+            printf("%s\n", command[cmdNum]);
+        }
+        else
+        {
+            fread(&zerg_cmd, sizeof(struct zerg_cmd), 1, fp);
+            print_cmd(zerg_cmd, cmdNum);
+        }
         break;
     //GPS type
     case 3:
