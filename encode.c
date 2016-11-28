@@ -189,7 +189,6 @@ main(int argc, char *argv[])
         {
             payloadSize = 8;
             
-            //TODO: Fix repeated code
             switch (cmdNum)
             {
             case 1:
