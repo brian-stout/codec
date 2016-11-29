@@ -1,5 +1,7 @@
 #include "packet.h"
 
+#include <stdio.h>
+
 void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 c, struct udp d)
 {
     printf("%x ", ntohl(a.unixEpoch));
@@ -40,7 +42,7 @@ void init_pcap_global(struct pcap_global *s)
     s->linkLayerHeaderType = 0x1;
 }
 
-void init_pcap_packet(struct pcap_global *s)
+void init_pcap_packet(struct pcap_packet *s)
 {
     s->unixEpoch = 0x0;
     s->microseconds = 0x0;
@@ -77,6 +79,22 @@ void init_udp(struct udp *s)
     s->len = 0x0;
     s->check = 0x0;
 }
+
+const char *command[] = {
+    "GET_STATUS", "GOTO", "GET_GPS", "RESERVED",
+    "RETURN", "SET_GROUP", "STOP", "REPEAT"
+};
+
+const char *boolWord[] = {
+    "FALSE", "TRUE"
+};
+
+const char *breed[] = {
+	"Overmind", "Larva", "Cerebrate", "Overlord",
+	"Queen", "Drone", "Zergling", "Lurker",
+	"Broodling", "Hydralisk", "Guardian", "Scourge",
+	"Ultralisk", "Mutalisk", "Defiler", "Devourer"
+};
 
 /* TODO:
 *       1. Maybe put decode print struct functions here?

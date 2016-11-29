@@ -1,3 +1,6 @@
+#ifndef PACKET_H
+#define PACKET_H
+
 #include <stdint.h>
 #include <arpa/inet.h>
 
@@ -86,14 +89,6 @@ struct __attribute__ ((packed)) zerg_cmd
     uint32_t param2:32;
 };
 
-const char *command[] = {
-    "GET_STATUS", "GOTO", "GET_GPS", "RESERVED",
-    "RETURN", "SET_GROUP", "STOP", "REPEAT"
-};
-
-const char *boolWord[] = {
-    "FALSE", "TRUE"
-};
 
 struct zerg_gps
 {
@@ -115,38 +110,18 @@ struct zerg_status
     uint32_t speed:32;
 };
 
-const char *breed[] = {
-	"Overmind", "Larva", "Cerebrate", "Overlord",
-	"Queen", "Drone", "Zergling", "Lurker",
-	"Broodling", "Hydralisk", "Guardian", "Scourge",
-	"Ultralisk", "Mutalisk", "Defiler", "Devourer"
-};
+extern const char *command[];
 
-void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 c, struct udp d)
-{
-    printf("%x ", ntohl(a.unixEpoch));
-    printf("%x ", a.microseconds);
-    printf("%x ", a.sizeFile);
-    printf("%x ", a.sizeWire);
+extern const char *boolWord[];
 
-    printf("%x ", b.dst);
-    printf("%x ", b.dst2);
-    printf("%x ", b.src);
-    printf("%x ", b.src2);
-    printf("%x ", b.type);
+extern const char *breed[];
 
-    printf("%x ", c.versionIHL);
-    printf("%x ", c.DSCP_ECN);
-    printf("%x ", c.totalLen);
-    printf("%x ", c.id);
-    printf("%x ", c.flagsFragOffset);
-    printf("%x ", c.ttlProto);
-    printf("%x ", c.check);
-    printf("%x ", c.src);
-    printf("%x ", c.dst);
+void print_network_packets(struct pcap_packet, struct ethernet, struct ipv4, struct udp);
+void init_pcap_global(struct pcap_global *s);
+void init_pcap_packet(struct pcap_packet *s);
+void init_ethernet(struct ethernet *s);
+void init_ipv4(struct ipv4 *s);
+void init_udp(struct udp *s);
 
-    printf("%x ", d.src);
-    printf("%x ", d.dst);
-    printf("%x ", d.len);
-    printf("%x ", d.check);
-}
+#endif
+ 
