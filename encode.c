@@ -178,7 +178,6 @@ main(int argc, char *argv[])
         zerg.len = payloadSize + zerg_packet_header;
         udp.len = zerg.len + 8;
         ipv4.totalLen = udp.len + 20;
-        //TODO: Check for needed padding
         pcap_packet.sizeFile = ipv4.totalLen + 14;
         pcap_packet.sizeWire = pcap_packet.sizeFile;   
 
@@ -192,12 +191,12 @@ main(int argc, char *argv[])
         {
         //Message binary write
         case 0:
-            fwrite(messageString, strlen(messageString), 1, fileOut);
+            fwrite(messageString, sizeof(char), payloadSize, fileOut);
             break;
         //Status binary write
         case 1:
             fwrite(&zerg_status, sizeof(struct zerg_status), 1, fileOut);
-            fwrite(messageString, strlen(messageString), 1, fileOut);
+            fwrite(messageString, sizeof(char), payloadSize, fileOut);
             break;
         //Command binary write
         case 2:
@@ -212,7 +211,9 @@ main(int argc, char *argv[])
             fwrite(&zerg_gps, sizeof(struct zerg_gps), 1, fileOut);
             break;
         }
-        fgets(buf, sizeof(buf), fp);
+
+        char endCheck[16];
+        fgets(endCheck, sizeof(endCheck), fp);
         if ( feof(fp) )
         {
             break;
@@ -333,7 +334,11 @@ double get_double(FILE * fp, size_t lengthOfString)
 
     //TODO: 2 is magic number
     //Checks to see if value should be negative or positive
-    if (buf[strlen(buf) - 2] == ('S' | 'W'))
+    if (buf[strlen(buf) - 2] == 'S')
+    {
+        r *= -1;
+    }
+    if (buf[strlen(buf) -2] == 'W')
     {
         r *= -1;
     }
