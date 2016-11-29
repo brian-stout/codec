@@ -47,6 +47,8 @@ main(int argc, char *argv[])
     struct pcap_global pcap_global;
     fread(&pcap_global, sizeof(struct pcap_global), 1, fp);
 
+    bool loopDone = false;
+
     while (true)
     {
         int readData;
@@ -54,11 +56,14 @@ main(int argc, char *argv[])
         //Checks to see if there's still data to be read after each loop runs
         struct pcap_packet pcap_packet;
         readData = fread(&pcap_packet, sizeof(struct pcap_packet), 1, fp);
-        if (readData == 0)
+        if (readData != 1)
         {
             break;
         }
-
+        if (loopDone)
+        {
+            printf("\n");
+        }
         struct ethernet ethernet;
         fread(&ethernet, sizeof(struct ethernet), 1, fp);
 
@@ -162,7 +167,7 @@ main(int argc, char *argv[])
         padding = padding_check(pcap_packet, zerg);
         if (padding)
         {
-            //fseek(fp, padding, SEEK_CUR);
+            fseek(fp, padding, SEEK_CUR);
         }
     /*
     printf("%d\n", pcap_packet.sizeFile);
@@ -170,7 +175,7 @@ main(int argc, char *argv[])
     printf("%d\n", ntohs(udp.len));
     printf("%d\n", ntoh24(zerg.len));
     */
- 
+    loopDone = true;
     }
     //File closed because data has all been read at this point
     fclose(fp);
