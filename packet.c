@@ -29,7 +29,7 @@ void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 
     printf("%x ", d.check);
 }
 
-void initialize_pcap_global(struct pcap_global *s)
+void init_pcap_global(struct pcap_global *s)
 {
     s->identifier = 0xa1b2c3d4;
     s->majVersion = 0x2;
@@ -39,3 +39,50 @@ void initialize_pcap_global(struct pcap_global *s)
     s->maxLength = 0x0;
     s->linkLayerHeaderType = 0x1;
 }
+
+void init_pcap_packet(struct pcap_global *s)
+{
+    s->unixEpoch = 0x0;
+    s->microseconds = 0x0;
+    s->sizeFile = 0x0; 
+    s->sizeWire = 0x0;
+}
+
+void init_ethernet(struct ethernet *s)
+{
+    s->dst = 0x0;
+    s->dst2 = 0x0;
+    s->src = 0x0;
+    s->src2 = 0x0;
+    s->type = 0x8;
+}
+
+void init_ipv4(struct ipv4 *s)
+{
+    s->versionIHL = 0x45;
+    s->DSCP_ECN = 0x0;
+    s->totalLen = 0x0;
+    s->id = 0x0;
+    s->flagsFragOffset = 0x0;
+    s->ttlProto = 0x1100;
+    s->check = 0x0;
+    s->src = 0x0;
+    s->dst = 0x0;
+}
+
+void init_udp(struct udp *s)
+{
+    s->src = 0x0;
+    s->dst = 0xA70E;
+    s->len = 0x0;
+    s->check = 0x0;
+}
+
+/* TODO:
+*       1. Maybe put decode print struct functions here?
+*       2. The padding function can go here
+*       3. Write in a function that assigns the correct len data based on zerg
+*           struct packet.
+*
+*
+*/
