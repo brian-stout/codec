@@ -49,22 +49,24 @@ main(int argc, char *argv[])
 
     bool loopDone = false;
 
-    while (true)
+    while(true)
     {
         int readData;
 
         //Checks to see if there's still data to be read after each loop runs
         struct pcap_packet pcap_packet;
         readData = fread(&pcap_packet, sizeof(struct pcap_packet), 1, fp);
-        if (readData != 1)
+        if (readData == 0)
         {
             break;
         }
+        //printf("We running again now\n");
         if (loopDone)
         {
             printf("\n");
         }
         struct ethernet ethernet;
+
         fread(&ethernet, sizeof(struct ethernet), 1, fp);
 
         struct ipv4 ipv4;
@@ -102,8 +104,10 @@ main(int argc, char *argv[])
         }
 
         //Always malloc zergString to avoid freeing nonexistent memory
-        char *zergString;
-        zergString = malloc((zergStringSize + 1) * sizeof(char));
+        //char *zergString = '\0';
+        //zergString = malloc((zergStringSize + 1) * sizeof(char));
+
+        char zergString[128];
 
         //Structs outside because they can't be initialized in a switch statement
         //TODO: put in order for readability
@@ -121,7 +125,7 @@ main(int argc, char *argv[])
         {
         //Message type
         case 0:
-            fread(zergString, zergStringSize, 1, fp);
+            fread(zergString, sizeof(char), zergStringSize, fp);
             //Sets the extra char space to null so string is null terminated
             zergString[zergStringSize] = '\0';
             printf("%s\n", zergString);
@@ -157,7 +161,7 @@ main(int argc, char *argv[])
         default:
             printf("Packet corrupt!\n");
         }
-        free(zergString);
+        //free(zergString);
 
         int padding;
 
@@ -169,12 +173,7 @@ main(int argc, char *argv[])
         {
             fseek(fp, padding, SEEK_CUR);
         }
-    /*
-    printf("%d\n", pcap_packet.sizeFile);
-    printf("%d\n", ntohs(ipv4.totalLen));;
-    printf("%d\n", ntohs(udp.len));
-    printf("%d\n", ntoh24(zerg.len));
-    */
+    
     loopDone = true;
     }
     //File closed because data has all been read at this point
@@ -258,6 +257,7 @@ print_gps(struct zerg_gps zerg_gps)
         latitude *= -1;
     }
     printf("Latitude : %.9lf deg. %c\n", latitude, direction);
+
     double longitude = bin_to_doub(ntohll(zerg_gps.longitude));
     if (longitude > 0)
     {
