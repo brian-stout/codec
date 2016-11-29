@@ -164,6 +164,13 @@ main(int argc, char *argv[])
         {
             //fseek(fp, padding, SEEK_CUR);
         }
+    /*
+    printf("%d\n", pcap_packet.sizeFile);
+    printf("%d\n", ntohs(ipv4.totalLen));;
+    printf("%d\n", ntohs(udp.len));
+    printf("%d\n", ntoh24(zerg.len));
+    */
+ 
     }
     //File closed because data has all been read at this point
     fclose(fp);
