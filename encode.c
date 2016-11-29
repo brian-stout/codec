@@ -71,11 +71,10 @@ main(int argc, char *argv[])
     struct pcap_packet pcap_packet;
     pcap_packet.unixEpoch = 0x0;
     pcap_packet.microseconds = 0x0;
-    //TODO:Calculate length here
     pcap_packet.sizeFile = 0x0; 
-    pcap_packet.sizeWire = pcap_packet.sizeFile;
+    pcap_packet.sizeWire = 0x0;
 
-    fwrite(&pcap_packet, sizeof(struct pcap_packet), 1, fileOut);
+
 
     struct ethernet ethernet;
     ethernet.dst = 0x0;
@@ -84,12 +83,10 @@ main(int argc, char *argv[])
     ethernet.src2 = 0x0;
     ethernet.type = 0x8;
 
-    fwrite(&ethernet, sizeof(struct ethernet), 1, fileOut);
 
     struct ipv4 ipv4;
     ipv4.versionIHL = 0x45;
     ipv4.DSCP_ECN = 0x0;
-    //TODO: Calculate a length here
     ipv4.totalLen = 0x0;
     ipv4.id = 0x0;
     ipv4.flagsFragOffset = 0x0;
@@ -98,17 +95,14 @@ main(int argc, char *argv[])
     ipv4.src = 0x0;
     ipv4.dst = 0x0;
 
-    fwrite(&ipv4, sizeof(struct ipv4), 1, fileOut);
 
     struct udp udp;
 
     udp.src = 0x0;
     udp.dst = 0xA70E;
-    //TODO: Calculate a length here
     udp.len = 0x0;
     udp.check = 0x0;
 
-    fwrite(&udp, sizeof(struct udp), 1, fileOut);
 
     struct zerg zerg;
 
@@ -121,16 +115,7 @@ main(int argc, char *argv[])
     zerg.dstId = htons(get_int_value(fp));
     zerg.srcId = htons(get_int_value(fp));
     int type = zerg.versionType & 0xf;
-    int version = zerg.versionType >> 4;
-
-    fwrite(&zerg, sizeof(struct zerg), 1, fileOut);
-
-    //test stuff
-    printf("Version  : %d\n", version);
-    printf("Type     : %d\n", type);
-    printf("Sequence : %d\n", ntohl(zerg.id));
-    printf("To       : %d\n", ntohs(zerg.dstId));
-    printf("From     : %d\n", ntohs(zerg.srcId));
+    //int version = zerg.versionType >> 4;
 
     char messageString[128];
     char buf[128];
@@ -209,8 +194,6 @@ main(int argc, char *argv[])
             default:
                 break;
             }
-
-            fwrite(&zerg_cmd, sizeof(zerg_cmd), 1, fileOut);
         }
         break;
     //GPS type
@@ -224,13 +207,52 @@ main(int argc, char *argv[])
         zerg_gps.speed = htonl(float_to_bin((float)get_int_value(fp) / 3.6));
         zerg_gps.accuracy = htonl(float_to_bin((float)get_int_value(fp)));
         fwrite(&zerg_gps, sizeof(struct zerg_gps), 1, fileOut);
-        payloadSize = 38;
+        payloadSize = 32;
         break;
     //TODO: error handling
     default:
         printf("Packet corrupt!\n");
     }
 
+    zerg.len = payloadSize + zerg_packet_header;
+    udp.len = zerg.len + 8;
+    ipv4.totalLen = udp.len + 20;
+    //TODO: Check for needed padding
+    pcap_packet.sizeFile = ipv4.totalLen + 14;
+    pcap_packet.sizeWire = pcap_packet.sizeFile;   
+
+    fwrite(&pcap_packet, sizeof(struct pcap_packet), 1, fileOut);
+    fwrite(&ethernet, sizeof(struct ethernet), 1, fileOut);
+    fwrite(&ipv4, sizeof(struct ipv4), 1, fileOut);
+    fwrite(&udp, sizeof(struct udp), 1, fileOut);
+    fwrite(&zerg, sizeof(struct zerg), 1, fileOut);
+
+    switch(type)
+    {
+    //Message type
+    case 0:
+        //TODO: Put in function
+        fwrite(messageString, strlen(messageString), 1, fileOut);
+        break;
+    //Status type
+    case 1:
+        //TODO: put in function
+        fwrite(&zerg_status, sizeof(struct zerg_status), 1, fileOut);
+        fwrite(messageString, strlen(messageString), 1, fileOut);
+        break;
+    //Command type
+    case 2:
+        fwrite(&cmdNum, sizeof(cmdNum), 1, fileOut);
+        if (cmdNum % 2)
+        {
+            fwrite(&zerg_cmd, sizeof(zerg_cmd), 1, fileOut);
+        }
+        break;
+    //GPS type
+    case 3:
+        fwrite(&zerg_gps, sizeof(struct zerg_gps), 1, fileOut);
+        break;
+    }
 }
 
 int
