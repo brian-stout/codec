@@ -130,7 +130,6 @@ main(int argc, char *argv[])
         //Command type
         case 2:
             cmdNum = get_word_index(fp, NUMBER_OF_COMMANDS, command);
-            fwrite(&cmdNum, sizeof(cmdNum), 1, fileOut);
             if (!cmdNum % 2)
             {
                 payloadSize = 2;
