@@ -136,7 +136,6 @@ main(int argc, char *argv[])
         {
             //Remove the newline off the end
             messageString[strlen(messageString) - 1] = '\0';
-            fwrite(messageString, strlen(messageString), 1, fileOut);
             payloadSize = strlen(messageString);
         }
         break;
@@ -158,10 +157,6 @@ main(int argc, char *argv[])
         zerg_status.type = get_word_index(fp, NUMBER_OF_BREEDS, breed);
         zerg_status.armor = get_int_value(fp);
         zerg_status.speed = htonl(float_to_bin(get_float(fp, 9)));
-        
-        fwrite(&zerg_status, sizeof(struct zerg_status), 1, fileOut);
-        fwrite(messageString, strlen(messageString), 1, fileOut);
-
         break;
     //Command type
     case 2:
@@ -206,7 +201,6 @@ main(int argc, char *argv[])
         zerg_gps.bearing = htonl(float_to_bin(get_float(fp, 9)));
         zerg_gps.speed = htonl(float_to_bin((float)get_int_value(fp) / 3.6));
         zerg_gps.accuracy = htonl(float_to_bin((float)get_int_value(fp)));
-        fwrite(&zerg_gps, sizeof(struct zerg_gps), 1, fileOut);
         payloadSize = 32;
         break;
     //TODO: error handling
