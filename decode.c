@@ -9,12 +9,6 @@
 #include "packet.h"
 #include "binary.h"
 
-
-
-
-
-int padding_check(struct pcap_packet, struct zerg);
-
 int
 main(int argc, char *argv[])
 {
