@@ -43,6 +43,9 @@ main(int argc, char *argv[])
         {
             break;
         }
+        //Checking a switch here to avoid printing a new line for first packet
+        //This is specifically done to split multiple packets and give the encoder
+        //an indicator that there is multiple packets
         if (loopDone)
         {
             printf("\n");
@@ -138,7 +141,6 @@ main(int argc, char *argv[])
         default:
             printf("Packet corrupt!\n");
         }
-        //free(zergString);
 
         int padding;
 
@@ -150,12 +152,10 @@ main(int argc, char *argv[])
         {
             fseek(fp, padding, SEEK_CUR);
         }
-    
     loopDone = true;
     }
     //File closed because data has all been read at this point
     fclose(fp);
-
 }
 
 
