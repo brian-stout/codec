@@ -179,7 +179,12 @@ main(int argc, char *argv[])
         udp.len = zerg.len + 8;
         ipv4.totalLen = udp.len + 20;
         pcap_packet.sizeFile = ipv4.totalLen + 14;
-        pcap_packet.sizeWire = pcap_packet.sizeFile;   
+
+        zerg.len = hton24(zerg.len);
+        udp.len = htons(udp.len);
+        ipv4.totalLen = htons(ipv4.totalLen);
+        pcap_packet.sizeWire = pcap_packet.sizeFile;
+           
 
         fwrite(&pcap_packet, sizeof(struct pcap_packet), 1, fileOut);
         fwrite(&ethernet, sizeof(struct ethernet), 1, fileOut);
@@ -196,7 +201,7 @@ main(int argc, char *argv[])
         //Status binary write
         case 1:
             fwrite(&zerg_status, sizeof(struct zerg_status), 1, fileOut);
-            fwrite(messageString, sizeof(char), payloadSize, fileOut);
+            fwrite(messageString, sizeof(char), strlen(messageString), fileOut);
             break;
         //Command binary write
         case 2:
@@ -218,6 +223,7 @@ main(int argc, char *argv[])
         {
             break;
         }
+        printf("We're running again\n");
     }
 
 }
