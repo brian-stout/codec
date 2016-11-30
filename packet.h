@@ -126,6 +126,7 @@ void print_gps(struct zerg_gps);
 void print_status(struct zerg_status);
 void print_cmd(struct zerg_cmd, uint16_t cmdNum);
 void print_preface(struct zerg, int, int);
+int padding_check(struct pcap_packet, struct zerg);
 
 #endif
  
