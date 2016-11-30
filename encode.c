@@ -331,8 +331,8 @@ double get_double(FILE * fp, size_t lengthOfString)
 
     double r = strtod(numberString, NULL);
 
-    //TODO: 2 is magic number
     //Checks to see if value should be negative or positive
+    //Grabs the cardinal symbol from the end which is in the index before the \n
     if (buf[strlen(buf) - 2] == 'S')
     {
         r *= -1;
