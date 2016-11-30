@@ -43,7 +43,6 @@ main(int argc, char *argv[])
         {
             break;
         }
-        //printf("We running again now\n");
         if (loopDone)
         {
             printf("\n");
@@ -61,7 +60,6 @@ main(int argc, char *argv[])
         struct zerg zerg;
         fread(&zerg, sizeof(struct zerg), 1, fp);
 
-        //TODO: Put in function
         size_t zergStringSize = 0;
     
         //Calculates two seperate four bit values from a byte of information
@@ -83,13 +81,10 @@ main(int argc, char *argv[])
              * happens to be the same size as the zerg_header packet
              * minus the payload, so multiply twice */
             //TODO: enum zerg_status in case it changes later
-            zergStringSize = ntoh24(zerg.len) - ZERG_PACKET * 2;
+            zergStringSize = ntoh24(zerg.len) - ZERG_PACKET + ZERG_STATUS_PAYLOAD;
         }
 
-        //Always malloc zergString to avoid freeing nonexistent memory
-        //char *zergString = '\0';
-        //zergString = malloc((zergStringSize + 1) * sizeof(char));
-
+        //TODO: Malloc here?
         char zergString[128];
 
         //Structs outside because they can't be initialized in a switch statement
@@ -100,8 +95,6 @@ main(int argc, char *argv[])
         
         //cmdNum seperated from struct because it needs to be processed to
         //determine if the rest of the struct is read in
-        //TODO: read everything outside the struct and assign it in later
-        //      for consistency
         uint16_t cmdNum;
 
         switch (type)
