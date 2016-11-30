@@ -25,12 +25,6 @@ enum
     data_offset = 11
 };
 
-enum
-{
-    //The size of static bytes for the zerg_packet_header (minus the payload)
-    zerg_packet_header = 12
-};
-
 int
 main(int argc, char *argv[])
 {
@@ -172,7 +166,7 @@ main(int argc, char *argv[])
             printf("Packet corrupt!\n");
         }
 
-        zerg.len = payloadSize + zerg_packet_header;
+        zerg.len = payloadSize + ZERG_PACKET;
         udp.len = zerg.len + 8;
         ipv4.totalLen = udp.len + 20;
         pcap_packet.sizeFile = ipv4.totalLen + 14;
