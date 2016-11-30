@@ -176,7 +176,7 @@ padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
 {
     int padding;
 
-    padding = pcap_packet.sizeFile - (ntoh24(zerg.len) + packet_minus_zerg);
+    padding = pcap_packet.sizeFile - (ntoh24(zerg.len) + PACKET_MINUS_ZERG);
     return padding;
 }
 

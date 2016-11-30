@@ -75,7 +75,7 @@ main(int argc, char *argv[])
         //calculates the size of the message and mallocs the appropiate space
         if (type == 0)
         {
-            zergStringSize = ntoh24(zerg.len) - zerg_packet;
+            zergStringSize = ntoh24(zerg.len) - ZERG_PACKET;
         }
         else if (type == 1)
         {
@@ -83,7 +83,7 @@ main(int argc, char *argv[])
              * happens to be the same size as the zerg_header packet
              * minus the payload, so multiply twice */
             //TODO: enum zerg_status in case it changes later
-            zergStringSize = ntoh24(zerg.len) - zerg_packet * 2;
+            zergStringSize = ntoh24(zerg.len) - ZERG_PACKET * 2;
         }
 
         //Always malloc zergString to avoid freeing nonexistent memory
