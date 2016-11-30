@@ -1,7 +1,7 @@
 #include "binary.h"
 
 uint64_t
-htonll(uint64_t i)
+htonll( uint64_t i )
 {
     uint32_t a;
     uint32_t b;
@@ -16,7 +16,7 @@ htonll(uint64_t i)
 }
 
 uint32_t
-hton24(uint32_t i)
+hton24( uint32_t i )
 {
     uint32_t a = i & 0xffff;
 
@@ -29,7 +29,7 @@ hton24(uint32_t i)
 }
 
 uint64_t
-ntohll(uint64_t i)
+ntohll( uint64_t i )
 {
     uint32_t a;
     uint32_t b;
@@ -44,7 +44,7 @@ ntohll(uint64_t i)
 }
 
 uint32_t
-ntoh24(uint32_t i)
+ntoh24( uint32_t i )
 {
     uint32_t a = i & 0xffff;
 
@@ -59,7 +59,7 @@ ntoh24(uint32_t i)
 //Solution adapted from http://stackoverflow.com/a/28884902
 //Credit to user Antoine L 
 float
-bin_to_float(uint32_t a)
+bin_to_float( uint32_t a )
 {
     union
     {
@@ -72,7 +72,7 @@ bin_to_float(uint32_t a)
 }
 
 double
-bin_to_doub(uint64_t a)
+bin_to_doub( uint64_t a )
 {
     union
     {
@@ -85,7 +85,7 @@ bin_to_doub(uint64_t a)
 }
 
 uint32_t
-float_to_bin(float a)
+float_to_bin( float a )
 {
     union
     {
@@ -98,7 +98,7 @@ float_to_bin(float a)
 }
 
 uint64_t
-doub_to_bin(double a)
+doub_to_bin( double a )
 {
     union
     {
