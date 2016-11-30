@@ -6,8 +6,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "packet.h"
-#include "binary.h"
+#include "Packet.h"
+#include "Binary.h"
 
 int
 main(int argc, char *argv[])
