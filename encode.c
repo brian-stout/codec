@@ -7,25 +7,34 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "Packet.h"
-#include "Binary.h"
+#include "packet.h"
+#include "binary.h"
 
-int get_int_value(FILE *);
-float get_float(FILE *);
-int get_hp(FILE *);
-int get_word_index(FILE *, int, const char **);
-double get_double(FILE *);
+int
+get_int_value( FILE * );
+
+float
+get_float( FILE * );
+
+int
+get_hp( FILE * );
+
+int
+get_word_index( FILE *, int, const char ** );
+
+double
+get_double( FILE * );
 
 enum
 {
-    //The decoder prints out 11 bytes of useless data for formatting.
-    //This value is used to offset indexes when the program needs
-    //to grab a value directly.
+    /*The decoder prints out 11 bytes of useless data for formatting.
+        This value is used to offset indexes when the program needs
+        to grab a value directly. */
     data_offset = 11
 };
 
 int
-main(int argc, char *argv[])
+main( int argc, char *argv[] )
 {
     if (argc != 2)
     {
@@ -61,7 +70,6 @@ main(int argc, char *argv[])
     while (true)
     {
         //Intialize values section
-
         init_pcap_packet(&pcap_packet);
         init_ethernet(&ethernet);
         init_ipv4(&ipv4);
@@ -93,7 +101,7 @@ main(int argc, char *argv[])
 
         switch (type)
         {
-            //Message type
+        //Message type
         case 0:
             if (fgets(messageString, sizeof(messageString), fp) != NULL)
             {
@@ -102,7 +110,7 @@ main(int argc, char *argv[])
                 payloadSize = strlen(messageString);
             }
             break;
-            //Status type
+        //Status type
         case 1:
             if (fgets(buf, sizeof(buf), fp) != NULL)
             {
@@ -120,7 +128,7 @@ main(int argc, char *argv[])
             zerg_status.armor = get_int_value(fp);
             zerg_status.speed = htonl(float_to_bin(get_float(fp)));
             break;
-            //Command type
+        //Command type
         case 2:
             cmdNum = get_word_index(fp, NUMBER_OF_COMMANDS, command);
             if (!cmdNum % 2)
@@ -149,7 +157,7 @@ main(int argc, char *argv[])
                 }
             }
             break;
-            //GPS type
+        //GPS type
         case 3:
             zerg_gps.latitude = htonll(doub_to_bin(get_double(fp)));
             zerg_gps.longitude = htonll(doub_to_bin(get_double(fp)));
@@ -190,17 +198,17 @@ main(int argc, char *argv[])
         //Use type again to write the correct ammount of bytes
         switch (type)
         {
-            //Message binary write
+         //Message binary write
         case 0:
             fwrite(messageString, sizeof(char), payloadSize, fileOut);
             break;
-            //Status binary write
+        //Status binary write
         case 1:
             fwrite(&zerg_status, sizeof(struct zerg_status), 1, fileOut);
             fwrite(messageString, sizeof(char), strlen(messageString),
                    fileOut);
             break;
-            //Command binary write
+        //Command binary write
         case 2:
             fwrite(&cmdNum, sizeof(cmdNum), 1, fileOut);
             //Checks to see if the command has parameters that need to be written
@@ -209,7 +217,7 @@ main(int argc, char *argv[])
                 fwrite(&zerg_cmd, sizeof(zerg_cmd), 1, fileOut);
             }
             break;
-            //GPS binary write
+        //GPS binary write
         case 3:
             fwrite(&zerg_gps, sizeof(struct zerg_gps), 1, fileOut);
             break;
@@ -228,7 +236,7 @@ main(int argc, char *argv[])
 }
 
 int
-get_int_value(FILE * fp)
+get_int_value( FILE * fp )
 {
     char numberString[128];
     char c;
@@ -250,7 +258,7 @@ get_int_value(FILE * fp)
 }
 
 int
-get_hp(FILE * fp)
+get_hp( FILE * fp )
 {
     char numberString[128];
     char c;
@@ -272,7 +280,7 @@ get_hp(FILE * fp)
 }
 
 int
-get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
+get_word_index( FILE * fp, int numberOfWords, const char **wordArray )
 {
     char buf[128];
     char messageString[128];
@@ -299,7 +307,7 @@ get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
 }
 
 float
-get_float(FILE * fp)
+get_float( FILE * fp )
 {
     char buf[128];
     char numberString[128];
@@ -321,7 +329,7 @@ get_float(FILE * fp)
 }
 
 double
-get_double(FILE * fp)
+get_double( FILE * fp )
 {
     char buf[128];
     char numberString[128];
