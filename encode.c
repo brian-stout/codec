@@ -137,7 +137,6 @@ main(int argc, char *argv[])
                 case 5:
                     zerg_cmd.param2 = htonl(get_int_value(fp));
                     zerg_cmd.param1 = htons(get_word_index(fp, 2, boolWord));
-
                     break;
                 case 7:
                     zerg_cmd.param2 = htonl(get_int_value(fp));
@@ -164,23 +163,28 @@ main(int argc, char *argv[])
             printf("Packet corrupt!\n");
         }
 
+        //Calculating the length of all the fields based off the payloadSize
+        //decided by the switch logic.  Important for ./decode logic
         zerg.len = payloadSize + ZERG_PACKET;
         udp.len = zerg.len + 8;
         ipv4.totalLen = udp.len + 20;
         pcap_packet.sizeFile = ipv4.totalLen + 14;
 
+        //Flipping endianess to match network type since
+        //pcap_packet.sizeFile isn't required to be flipped
         zerg.len = hton24(zerg.len);
         udp.len = htons(udp.len);
         ipv4.totalLen = htons(ipv4.totalLen);
         pcap_packet.sizeWire = pcap_packet.sizeFile;
-           
 
+        //Writing in the packets now that the length fields are correct
         fwrite(&pcap_packet, sizeof(struct pcap_packet), 1, fileOut);
         fwrite(&ethernet, sizeof(struct ethernet), 1, fileOut);
         fwrite(&ipv4, sizeof(struct ipv4), 1, fileOut);
         fwrite(&udp, sizeof(struct udp), 1, fileOut);
         fwrite(&zerg, sizeof(struct zerg), 1, fileOut);
 
+        //Use type again to write the correct ammount of bytes
         switch(type)
         {
         //Message binary write
@@ -195,6 +199,7 @@ main(int argc, char *argv[])
         //Command binary write
         case 2:
             fwrite(&cmdNum, sizeof(cmdNum), 1, fileOut);
+            //Checks to see if the command has parameters that need to be written
             if (cmdNum % 2)
             {
                 fwrite(&zerg_cmd, sizeof(zerg_cmd), 1, fileOut);
@@ -207,14 +212,15 @@ main(int argc, char *argv[])
         }
 
         char endCheck[16];
+
+        //If there's multiple packets it'll read in a blank line
         fgets(endCheck, sizeof(endCheck), fp);
+        //If there isn't it'll pass EOF and FEOF while return positive
         if ( feof(fp) )
         {
             break;
         }
-
     }
-
 }
 
 int
