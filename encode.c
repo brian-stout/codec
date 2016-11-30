@@ -14,7 +14,6 @@ float get_float(FILE *, size_t);
 int get_hp(FILE *);
 int get_word_index(FILE *, int, const char **);
 double get_double(FILE *, size_t);
-void process_cmd(FILE *, struct zerg_cmd *, uint16_t);
 uint64_t doub_to_bin(double);
 uint32_t float_to_bin(float);
 uint64_t htonll(uint64_t);
@@ -223,7 +222,7 @@ main(int argc, char *argv[])
         {
             break;
         }
-        printf("We're running again\n");
+
     }
 
 }
