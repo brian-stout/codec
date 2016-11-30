@@ -242,7 +242,6 @@ get_int_value(FILE * fp)
     int r;
 
     r = strtol(numberString, NULL, 10);
-
     return r;
 }
 
@@ -263,7 +262,6 @@ int get_hp(FILE * fp)
     int r;
 
     r = strtol(numberString, NULL, 10);
-
     return r;   
 }
 
