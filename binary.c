@@ -1,14 +1,5 @@
 #include "binary.h"
 
-#include <ctype.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <sysexits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-
 uint64_t
 htonll(uint64_t i)
 {
