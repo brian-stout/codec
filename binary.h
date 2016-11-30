@@ -1,3 +1,6 @@
+#ifndef BINARY_H
+#define BINARY_H
+
 #include <ctype.h>
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -15,3 +18,5 @@ uint64_t doub_to_bin(double);
 uint32_t float_to_bin(float);
 uint64_t htonll(uint64_t);
 uint32_t hton24(uint32_t i);
+
+#endif
