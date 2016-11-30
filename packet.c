@@ -30,6 +30,7 @@ void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 
     printf("%x ", d.check);
 }
 
+//initialize structs section
 void init_pcap_global(struct pcap_global *s)
 {
     s->identifier = 0xa1b2c3d4;
@@ -194,8 +195,3 @@ const char *breed[] = {
 	"Broodling", "Hydralisk", "Guardian", "Scourge",
 	"Ultralisk", "Mutalisk", "Defiler", "Devourer"
 };
-
-/* TODO:
-*       1. Write in a function that assigns the correct len data based on zerg
-*           struct packet.
-*/
