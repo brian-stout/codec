@@ -299,7 +299,6 @@ get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
     return r;
 }
 
-//TODO: Make it not rely on a length, just look for a space
 float
 get_float(FILE * fp)
 {
@@ -310,12 +309,8 @@ get_float(FILE * fp)
     {
         //Grabs the number 
         size_t i = 0;
-        while (true)
+        while (buf[i + data_offset] != ' ')
         {
-            if (buf[i + data_offset] == ' ')
-            {
-                break;
-            }
             numberString[i] = buf[i + data_offset];
             i++;
         }
@@ -336,12 +331,8 @@ get_double(FILE * fp)
     {
         //Grabs the number 
         size_t i = 0;
-        while (true)
+        while (buf[i + data_offset] != ' ')
         {
-            if (buf[i + data_offset] == ' ')
-            {
-                break;
-            }
             numberString[i] = buf[i + data_offset];
             i++;
         }
