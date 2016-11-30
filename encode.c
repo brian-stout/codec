@@ -16,7 +16,6 @@ int get_hp(FILE *);
 int get_word_index(FILE *, int, const char **);
 double get_double(FILE *, size_t);
 
-
 enum
 {
     //The decoder prints out 11 bytes of useless data for formatting.
@@ -33,7 +32,6 @@ main(int argc, char *argv[])
         printf("ERROR, USAGE: [encode] [~/<filename>]\n");
         return EX_USAGE;
     }
-
 
     FILE *fp = fopen(argv[1], "r");
 
@@ -68,21 +66,25 @@ main(int argc, char *argv[])
         init_ipv4(&ipv4);
         init_udp(&udp);
 
+        //Values are printed out seperately but stored together in half a byte
         zerg.versionType = get_int_value(fp);
         zerg.versionType = zerg.versionType << 4;
         zerg.versionType = zerg.versionType | get_int_value(fp);
+
         zerg.len = 0x0; //Default init, changes later
         zerg.id = htonl(get_int_value(fp));
         zerg.dstId = htons(get_int_value(fp));
         zerg.srcId = htons(get_int_value(fp));
+
         int type = zerg.versionType & 0xf;
 
         char messageString[128];
         char buf[128];
 
         struct zerg_status zerg_status;
-        struct zerg_cmd zerg_cmd;
+        //The type of command (cmdNum) is processed seperately from the struct
         uint16_t cmdNum;
+        struct zerg_cmd zerg_cmd;
         struct zerg_gps zerg_gps;
 
         size_t payloadSize = 0;
@@ -91,7 +93,6 @@ main(int argc, char *argv[])
         {
         //Message type
         case 0:
-            //TODO: Put in function
             if (fgets(messageString, sizeof(messageString), fp) != NULL)
             {
                 //Remove the newline off the end
@@ -101,7 +102,6 @@ main(int argc, char *argv[])
             break;
         //Status type
         case 1:
-            //TODO: put in function
             if (fgets(buf, sizeof(buf), fp) != NULL)
             {
                 //Grabs name of zerg
@@ -128,13 +128,11 @@ main(int argc, char *argv[])
             else
             {
                 payloadSize = 8;
-                
                 switch (cmdNum)
                 {
                 case 1:
                     zerg_cmd.param1 = htons(doub_to_bin(get_float(fp, 4)));
                     zerg_cmd.param2 = htonl(get_int_value(fp));
-
                     break;
                 case 5:
                     zerg_cmd.param2 = htonl(get_int_value(fp));
