@@ -1,7 +1,12 @@
 #include "packet.h"
 #include "binary.h"
 
-void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 c, struct udp d)
+void
+print_network_packets(
+    struct pcap_packet a,
+    struct ethernet b,
+    struct ipv4 c,
+    struct udp d )
 {
     printf("%x ", ntohl(a.unixEpoch));
     printf("%x ", a.microseconds);
@@ -31,7 +36,8 @@ void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 
 }
 
 //initialize structs section
-void init_pcap_global(struct pcap_global *s)
+void
+init_pcap_global( struct pcap_global *s )
 {
     s->identifier = 0xa1b2c3d4;
     s->majVersion = 0x2;
@@ -42,7 +48,8 @@ void init_pcap_global(struct pcap_global *s)
     s->linkLayerHeaderType = 0x1;
 }
 
-void init_pcap_packet(struct pcap_packet *s)
+void
+init_pcap_packet( struct pcap_packet *s )
 {
     s->unixEpoch = 0x0;
     s->microseconds = 0x0;
@@ -50,7 +57,8 @@ void init_pcap_packet(struct pcap_packet *s)
     s->sizeWire = 0x0;
 }
 
-void init_ethernet(struct ethernet *s)
+void
+init_ethernet( struct ethernet *s )
 {
     s->dst = 0x0;
     s->dst2 = 0x0;
@@ -59,7 +67,8 @@ void init_ethernet(struct ethernet *s)
     s->type = 0x8;
 }
 
-void init_ipv4(struct ipv4 *s)
+void
+init_ipv4( struct ipv4 *s )
 {
     s->versionIHL = 0x45;
     s->DSCP_ECN = 0x0;
@@ -72,7 +81,8 @@ void init_ipv4(struct ipv4 *s)
     s->dst = 0x0;
 }
 
-void init_udp(struct udp *s)
+void
+init_udp( struct udp *s )
 {
     s->src = 0x0;
     s->dst = 0xA70E;
@@ -81,7 +91,7 @@ void init_udp(struct udp *s)
 }
 
 void
-print_gps(struct zerg_gps zerg_gps)
+print_gps( struct zerg_gps zerg_gps )
 {
     char direction = ' ';
 
@@ -117,7 +127,7 @@ print_gps(struct zerg_gps zerg_gps)
 }
 
 void
-print_status(struct zerg_status zerg_status)
+print_status( struct zerg_status zerg_status )
 {
     int hp = ntoh24(zerg_status.hp);
     int maxHp = ntoh24(zerg_status.maxHp);
@@ -129,7 +139,7 @@ print_status(struct zerg_status zerg_status)
 }
 
 void
-print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
+print_cmd( struct zerg_cmd zerg_cmd, uint16_t cmdNum )
 {
     unsigned int cmd = cmdNum;
 
@@ -162,7 +172,7 @@ print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
 }
 
 void
-print_preface(struct zerg zerg, int version, int type)
+print_preface( struct zerg zerg, int version, int type )
 {
     printf("Version  : %d\n", version);
     printf("Type     : %d\n", type);
@@ -172,7 +182,7 @@ print_preface(struct zerg zerg, int version, int type)
 }
 
 int
-padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
+padding_check( struct pcap_packet pcap_packet, struct zerg zerg )
 {
     int padding;
 
