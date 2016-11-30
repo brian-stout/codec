@@ -7,22 +7,11 @@
 #include <stdbool.h>
 
 #include "packet.h"
+#include "binary.h"
 
-uint64_t ntohll(uint64_t);
 
-uint32_t ntoh24(uint32_t);
 
-float bin_to_float(uint32_t);
 
-double bin_to_doub(uint64_t);
-
-void print_gps(struct zerg_gps);
-
-void print_status(struct zerg_status);
-
-void print_cmd(struct zerg_cmd, uint16_t cmdNum);
-
-void print_preface(struct zerg, int, int);
 
 int padding_check(struct pcap_packet, struct zerg);
 
@@ -127,6 +116,7 @@ main(int argc, char *argv[])
         case 0:
             fread(zergString, sizeof(char), zergStringSize, fp);
             //Sets the extra char space to null so string is null terminated
+            
             zergString[zergStringSize] = '\0';
             printf("%s\n", zergString);
             break;
@@ -182,161 +172,4 @@ main(int argc, char *argv[])
 }
 
 
-//TODO: put in a header file for future use in other programs
-uint64_t
-ntohll(uint64_t i)
-{
-    //TODO: Save a few lines by removing an unnessecary variable
-    uint32_t a;
-    uint32_t b;
-    uint64_t r = 0;
 
-    a = i >> 32;
-    b = i;
-    r = r | ntohl(b);
-    r = r << 32;
-    r = r | ntohl(a);
-    return r;
-}
-
-uint32_t
-ntoh24(uint32_t i)
-{
-    uint32_t a = i & 0xffff;
-
-    a = ntohs(a);
-    a <<= 8;
-    i >>= 16;
-    i = i | a;
-
-    return i;
-}
-
-//Solution adapted from http://stackoverflow.com/a/28884902
-//Credit to user Antoine L 
-float
-bin_to_float(uint32_t a)
-{
-    union
-    {
-        uint32_t b;
-        float f;
-    } u;
-
-    u.b = a;
-    return u.f;
-}
-
-double
-bin_to_doub(uint64_t a)
-{
-    union
-    {
-        uint64_t b;
-        double d;
-    } u;
-
-    u.b = a;
-    return u.d;
-}
-
-void
-print_gps(struct zerg_gps zerg_gps)
-{
-    char direction = ' ';
-
-    double latitude = bin_to_doub(ntohll(zerg_gps.latitude));
-
-    if (latitude > 0)
-    {
-        direction = 'N';
-    }
-    else if (latitude < 0)
-    {
-        direction = 'S';
-        latitude *= -1;
-    }
-    printf("Latitude : %.9lf deg. %c\n", latitude, direction);
-
-    double longitude = bin_to_doub(ntohll(zerg_gps.longitude));
-    if (longitude > 0)
-    {
-        direction = 'E';
-    }
-    else if (longitude < 0)
-    {
-        direction = 'W';
-        longitude *= -1;
-    }
-    printf("Longitude: %.9lf deg. %c\n", longitude, direction);
-
-    printf("Altitude : %.1fm\n", bin_to_float(ntohl(zerg_gps.altitude)) * 1.8288);
-    printf("Bearing  : %f deg.\n", bin_to_float(ntohl(zerg_gps.bearing)));
-    printf("Speed    : %.0f km/h\n", bin_to_float(ntohl(zerg_gps.speed)) * 3.6);
-    printf("Accuracy : %.0f m\n", bin_to_float(ntohl(zerg_gps.accuracy)));
-}
-
-void
-print_status(struct zerg_status zerg_status)
-{
-    int hp = ntoh24(zerg_status.hp);
-    int maxHp = ntoh24(zerg_status.maxHp);
-
-    printf("HP       : %d/%d\n", hp, maxHp);
-    printf("Type     : %s\n", breed[zerg_status.type]);
-    printf("Armor    : %d\n", zerg_status.armor);
-    printf("Speed    : %f\n", bin_to_float(ntohl(zerg_status.speed)));
-}
-
-void
-print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
-{
-    unsigned int cmd = cmdNum;
-
-    switch (cmd)
-    {
-    case 1:
-        printf("Command  : %s\n", command[cmd]);
-        printf("Direction: %.2f deg. \n", bin_to_float(ntohs(zerg_cmd.param1)));
-        printf("Distance : %d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
-        break;
-    case 5:
-        printf("Command  : %s ", command[cmd]);
-        printf("%d ", ntohl(zerg_cmd.param2));
-        if (ntohs(zerg_cmd.param1))
-        {
-            printf("TRUE\n");
-        }
-        else
-        {
-            printf("FALSE\n");
-        }
-        break;
-    case 7:
-        printf("Command  : %s ", command[cmd]);
-        printf("sequence %d\n", ntohl(zerg_cmd.param2));
-        break;
-    default:
-        break;
-    }
-}
-
-void
-print_preface(struct zerg zerg, int version, int type)
-{
-    printf("Version  : %d\n", version);
-    printf("Type     : %d\n", type);
-    printf("Sequence : %d\n", ntohl(zerg.id));
-    printf("To       : %d\n", ntohs(zerg.dstId));
-    printf("From     : %d\n", ntohs(zerg.srcId));
-}
-
-//TODO: Move to packet.c?
-int
-padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
-{
-    int padding;
-
-    padding = pcap_packet.sizeFile - (ntoh24(zerg.len) + packet_minus_zerg);
-    return padding;
-}

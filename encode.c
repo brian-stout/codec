@@ -8,16 +8,14 @@
 #include <stdbool.h>
 
 #include "packet.h"
+#include "binary.h"
 
 int get_int_value(FILE *);
 float get_float(FILE *, size_t);
 int get_hp(FILE *);
 int get_word_index(FILE *, int, const char **);
 double get_double(FILE *, size_t);
-uint64_t doub_to_bin(double);
-uint32_t float_to_bin(float);
-uint64_t htonll(uint64_t);
-uint32_t hton24(uint32_t i);
+
 
 enum
 {
@@ -348,57 +346,4 @@ double get_double(FILE * fp, size_t lengthOfString)
         r *= -1;
     }
     return r;
-}
-
-uint32_t
-float_to_bin(float a)
-{
-    union
-    {
-        float b;
-        uint32_t uint;
-    } u;
-    
-    u.b = a;
-    return u.uint;     
-}
-
-uint64_t doub_to_bin(double a)
-{
-    union
-    {
-        double b;
-        uint64_t uint;
-    } u;
-    u.b = a;
-    return u.uint;
-}
-
-uint64_t
-htonll(uint64_t i)
-{
-    //TODO: Save a few lines by removing an unnessecary variable
-    uint32_t a;
-    uint32_t b;
-    uint64_t r = 0;
-
-    a = i >> 32;
-    b = i;
-    r = r | htonl(b);
-    r = r << 32;
-    r = r | htonl(a);
-    return r;
-}
-
-uint32_t
-hton24(uint32_t i)
-{
-    uint32_t a = i & 0xffff;
-
-    a = htons(a);
-    a <<= 8;
-    i >>= 16;
-    i = i | a;
-
-    return i;
 }

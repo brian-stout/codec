@@ -1,4 +1,5 @@
 #include "packet.h"
+#include "binary.h"
 
 #include <stdio.h>
 
@@ -78,6 +79,107 @@ void init_udp(struct udp *s)
     s->dst = 0xA70E;
     s->len = 0x0;
     s->check = 0x0;
+}
+
+void
+print_gps(struct zerg_gps zerg_gps)
+{
+    char direction = ' ';
+
+    double latitude = bin_to_doub(ntohll(zerg_gps.latitude));
+
+    if (latitude > 0)
+    {
+        direction = 'N';
+    }
+    else if (latitude < 0)
+    {
+        direction = 'S';
+        latitude *= -1;
+    }
+    printf("Latitude : %.9lf deg. %c\n", latitude, direction);
+
+    double longitude = bin_to_doub(ntohll(zerg_gps.longitude));
+    if (longitude > 0)
+    {
+        direction = 'E';
+    }
+    else if (longitude < 0)
+    {
+        direction = 'W';
+        longitude *= -1;
+    }
+    printf("Longitude: %.9lf deg. %c\n", longitude, direction);
+
+    printf("Altitude : %.1fm\n", bin_to_float(ntohl(zerg_gps.altitude)) * 1.8288);
+    printf("Bearing  : %f deg.\n", bin_to_float(ntohl(zerg_gps.bearing)));
+    printf("Speed    : %.0f km/h\n", bin_to_float(ntohl(zerg_gps.speed)) * 3.6);
+    printf("Accuracy : %.0f m\n", bin_to_float(ntohl(zerg_gps.accuracy)));
+}
+
+void
+print_status(struct zerg_status zerg_status)
+{
+    int hp = ntoh24(zerg_status.hp);
+    int maxHp = ntoh24(zerg_status.maxHp);
+
+    printf("HP       : %d/%d\n", hp, maxHp);
+    printf("Type     : %s\n", breed[zerg_status.type]);
+    printf("Armor    : %d\n", zerg_status.armor);
+    printf("Speed    : %f\n", bin_to_float(ntohl(zerg_status.speed)));
+}
+
+void
+print_cmd(struct zerg_cmd zerg_cmd, uint16_t cmdNum)
+{
+    unsigned int cmd = cmdNum;
+
+    switch (cmd)
+    {
+    case 1:
+        printf("Command  : %s\n", command[cmd]);
+        printf("Direction: %.2f deg. \n", bin_to_float(ntohs(zerg_cmd.param1)));
+        printf("Distance : %d meters away\n", (unsigned int) ntohs(zerg_cmd.param2));
+        break;
+    case 5:
+        printf("Command  : %s ", command[cmd]);
+        printf("%d ", ntohl(zerg_cmd.param2));
+        if (ntohs(zerg_cmd.param1))
+        {
+            printf("TRUE\n");
+        }
+        else
+        {
+            printf("FALSE\n");
+        }
+        break;
+    case 7:
+        printf("Command  : %s ", command[cmd]);
+        printf("sequence %d\n", ntohl(zerg_cmd.param2));
+        break;
+    default:
+        break;
+    }
+}
+
+void
+print_preface(struct zerg zerg, int version, int type)
+{
+    printf("Version  : %d\n", version);
+    printf("Type     : %d\n", type);
+    printf("Sequence : %d\n", ntohl(zerg.id));
+    printf("To       : %d\n", ntohs(zerg.dstId));
+    printf("From     : %d\n", ntohs(zerg.srcId));
+}
+
+//TODO: Move to packet.c?
+int
+padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
+{
+    int padding;
+
+    padding = pcap_packet.sizeFile - (ntoh24(zerg.len) + packet_minus_zerg);
+    return padding;
 }
 
 const char *command[] = {
