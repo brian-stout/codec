@@ -11,10 +11,10 @@
 #include "binary.h"
 
 int get_int_value(FILE *);
-float get_float(FILE *, size_t);
+float get_float(FILE *);
 int get_hp(FILE *);
 int get_word_index(FILE *, int, const char **);
-double get_double(FILE *, size_t);
+double get_double(FILE *);
 
 enum
 {
@@ -42,6 +42,7 @@ main(int argc, char *argv[])
     }
 
     char writeToString[64];
+
     strncpy(writeToString, argv[1], sizeof(writeToString));
     strncat(writeToString, ".pcap", sizeof(writeToString));
 
@@ -57,7 +58,7 @@ main(int argc, char *argv[])
     init_pcap_global(&pcap_global);
     fwrite(&pcap_global, sizeof(struct pcap_global), 1, fileOut);
 
-    while(true)
+    while (true)
     {
         //Intialize values section
 
@@ -71,7 +72,7 @@ main(int argc, char *argv[])
         zerg.versionType = zerg.versionType << 4;
         zerg.versionType = zerg.versionType | get_int_value(fp);
 
-        zerg.len = 0x0; //Default init, changes later
+        zerg.len = 0x0;         //Default init, changes later
         zerg.id = htonl(get_int_value(fp));
         zerg.dstId = htons(get_int_value(fp));
         zerg.srcId = htons(get_int_value(fp));
@@ -82,6 +83,7 @@ main(int argc, char *argv[])
         char buf[128];
 
         struct zerg_status zerg_status;
+
         //The type of command (cmdNum) is processed seperately from the struct
         uint16_t cmdNum;
         struct zerg_cmd zerg_cmd;
@@ -89,9 +91,9 @@ main(int argc, char *argv[])
 
         size_t payloadSize = 0;
 
-        switch(type)
+        switch (type)
         {
-        //Message type
+            //Message type
         case 0:
             if (fgets(messageString, sizeof(messageString), fp) != NULL)
             {
@@ -100,12 +102,12 @@ main(int argc, char *argv[])
                 payloadSize = strlen(messageString);
             }
             break;
-        //Status type
+            //Status type
         case 1:
             if (fgets(buf, sizeof(buf), fp) != NULL)
             {
                 //Grabs name of zerg
-                for(size_t i = 0; i < strlen(buf); ++i)
+                for (size_t i = 0; i < strlen(buf); ++i)
                 {
                     messageString[i] = buf[i + data_offset];
                 }
@@ -116,9 +118,9 @@ main(int argc, char *argv[])
             zerg_status.maxHp = hton24(get_int_value(fp));
             zerg_status.type = get_word_index(fp, NUMBER_OF_BREEDS, breed);
             zerg_status.armor = get_int_value(fp);
-            zerg_status.speed = htonl(float_to_bin(get_float(fp, 9)));
+            zerg_status.speed = htonl(float_to_bin(get_float(fp)));
             break;
-        //Command type
+            //Command type
         case 2:
             cmdNum = get_word_index(fp, NUMBER_OF_COMMANDS, command);
             if (!cmdNum % 2)
@@ -131,7 +133,7 @@ main(int argc, char *argv[])
                 switch (cmdNum)
                 {
                 case 1:
-                    zerg_cmd.param1 = htons(doub_to_bin(get_float(fp, 4)));
+                    zerg_cmd.param1 = htons(doub_to_bin(get_float(fp)));
                     zerg_cmd.param2 = htonl(get_int_value(fp));
                     break;
                 case 5:
@@ -147,18 +149,19 @@ main(int argc, char *argv[])
                 }
             }
             break;
-        //GPS type
+            //GPS type
         case 3:
-            zerg_gps.latitude = htonll(doub_to_bin(get_double(fp, 12)));
-            zerg_gps.longitude = htonll(doub_to_bin(get_double(fp, 12)));
+            zerg_gps.latitude = htonll(doub_to_bin(get_double(fp)));
+            zerg_gps.longitude = htonll(doub_to_bin(get_double(fp)));
             //Not going to have a exact Hex
-            zerg_gps.altitude = htonl(float_to_bin(get_float(fp, 4) / 1.8288));
-            zerg_gps.bearing = htonl(float_to_bin(get_float(fp, 9)));
-            zerg_gps.speed = htonl(float_to_bin((float)get_int_value(fp) / 3.6));
-            zerg_gps.accuracy = htonl(float_to_bin((float)get_int_value(fp)));
+            zerg_gps.altitude = htonl(float_to_bin(get_float(fp) / 1.8288));
+            zerg_gps.bearing = htonl(float_to_bin(get_float(fp)));
+            zerg_gps.speed =
+                htonl(float_to_bin((float) get_int_value(fp) / 3.6));
+            zerg_gps.accuracy = htonl(float_to_bin((float) get_int_value(fp)));
             payloadSize = 32;
             break;
-        //TODO: error handling
+            //TODO: error handling
         default:
             printf("Packet corrupt!\n");
         }
@@ -185,18 +188,19 @@ main(int argc, char *argv[])
         fwrite(&zerg, sizeof(struct zerg), 1, fileOut);
 
         //Use type again to write the correct ammount of bytes
-        switch(type)
+        switch (type)
         {
-        //Message binary write
+            //Message binary write
         case 0:
             fwrite(messageString, sizeof(char), payloadSize, fileOut);
             break;
-        //Status binary write
+            //Status binary write
         case 1:
             fwrite(&zerg_status, sizeof(struct zerg_status), 1, fileOut);
-            fwrite(messageString, sizeof(char), strlen(messageString), fileOut);
+            fwrite(messageString, sizeof(char), strlen(messageString),
+                   fileOut);
             break;
-        //Command binary write
+            //Command binary write
         case 2:
             fwrite(&cmdNum, sizeof(cmdNum), 1, fileOut);
             //Checks to see if the command has parameters that need to be written
@@ -205,7 +209,7 @@ main(int argc, char *argv[])
                 fwrite(&zerg_cmd, sizeof(zerg_cmd), 1, fileOut);
             }
             break;
-        //GPS binary write
+            //GPS binary write
         case 3:
             fwrite(&zerg_gps, sizeof(struct zerg_gps), 1, fileOut);
             break;
@@ -216,7 +220,7 @@ main(int argc, char *argv[])
         //If there's multiple packets it'll read in a blank line
         fgets(endCheck, sizeof(endCheck), fp);
         //If there isn't it'll pass EOF and FEOF while return positive
-        if ( feof(fp) )
+        if (feof(fp))
         {
             break;
         }
@@ -245,11 +249,13 @@ get_int_value(FILE * fp)
     return r;
 }
 
-int get_hp(FILE * fp)
+int
+get_hp(FILE * fp)
 {
     char numberString[128];
     char c;
     size_t i = 0;
+
     while ((c = fgetc(fp)) != ('/'))
     {
         if (isdigit(c))
@@ -262,10 +268,11 @@ int get_hp(FILE * fp)
     int r;
 
     r = strtol(numberString, NULL, 10);
-    return r;   
+    return r;
 }
 
-int get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
+int
+get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
 {
     char buf[128];
     char messageString[128];
@@ -274,26 +281,27 @@ int get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
     if (fgets(buf, sizeof(buf), fp) != NULL)
     {
         //Grabs the word being compared
-        for(size_t i = 0; i < strlen(buf); ++i)
+        for (size_t i = 0; i < strlen(buf); ++i)
         {
             messageString[i] = buf[i + data_offset];
         }
         messageString[strlen(messageString) - 1] = '\0';
     }
-    for(int i = 0; i < numberOfWords; ++i)
+    for (int i = 0; i < numberOfWords; ++i)
     {
         //TODO: Correct use of strlen in strncmp?
-        if(!strncmp(messageString, wordArray[i], strlen(wordArray[i])))
+        if (!strncmp(messageString, wordArray[i], strlen(wordArray[i])))
         {
             r = i;
             break;
-        } 
+        }
     }
     return r;
 }
 
 //TODO: Make it not rely on a length, just look for a space
-float get_float(FILE * fp, size_t lengthOfString)
+float
+get_float(FILE * fp)
 {
     char buf[128];
     char numberString[128];
@@ -301,19 +309,25 @@ float get_float(FILE * fp, size_t lengthOfString)
     if (fgets(buf, sizeof(buf), fp) != NULL)
     {
         //Grabs the number 
-        for(size_t i = 0; i < lengthOfString; ++i)
+        size_t i = 0;
+        while (true)
         {
+            if (buf[i + data_offset] == ' ')
+            {
+                break;
+            }
             numberString[i] = buf[i + data_offset];
-
+            i++;
         }
-        numberString[lengthOfString + 1] = '\0';
+        numberString[strlen(numberString)] = '\0';
     }
-
     float r = strtof(numberString, NULL);
+
     return r;
 }
 
-double get_double(FILE * fp, size_t lengthOfString)
+double
+get_double(FILE * fp)
 {
     char buf[128];
     char numberString[128];
@@ -321,14 +335,18 @@ double get_double(FILE * fp, size_t lengthOfString)
     if (fgets(buf, sizeof(buf), fp) != NULL)
     {
         //Grabs the number 
-        for(size_t i = 0; i < lengthOfString; ++i)
+        size_t i = 0;
+        while (true)
         {
+            if (buf[i + data_offset] == ' ')
+            {
+                break;
+            }
             numberString[i] = buf[i + data_offset];
-
+            i++;
         }
-        numberString[lengthOfString + 1] = '\0';
+        numberString[strlen(numberString)] = '\0';
     }
-
     double r = strtod(numberString, NULL);
 
     //Checks to see if value should be negative or positive
@@ -337,7 +355,7 @@ double get_double(FILE * fp, size_t lengthOfString)
     {
         r *= -1;
     }
-    if (buf[strlen(buf) -2] == 'W')
+    if (buf[strlen(buf) - 2] == 'W')
     {
         r *= -1;
     }
