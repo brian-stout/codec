@@ -289,7 +289,6 @@ get_word_index(FILE * fp, int numberOfWords, const char **wordArray)
     }
     for (int i = 0; i < numberOfWords; ++i)
     {
-        //TODO: Correct use of strlen in strncmp?
         if (!strncmp(messageString, wordArray[i], strlen(wordArray[i])))
         {
             r = i;

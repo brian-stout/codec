@@ -1,14 +1,9 @@
 #ifndef BINARY_H
 #define BINARY_H
 
-#include <ctype.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <sysexits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 
 uint64_t ntohll(uint64_t);
 uint32_t ntoh24(uint32_t);
