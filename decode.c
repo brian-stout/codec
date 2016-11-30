@@ -88,11 +88,10 @@ main(int argc, char *argv[])
         char zergString[128];
 
         //Structs outside because they can't be initialized in a switch statement
-        //TODO: put in order for readability
         struct zerg_cmd zerg_cmd;
-        struct zerg_gps zerg_gps;
         struct zerg_status zerg_status;
-        
+        struct zerg_gps zerg_gps;
+
         //cmdNum seperated from struct because it needs to be processed to
         //determine if the rest of the struct is read in
         uint16_t cmdNum;
@@ -103,13 +102,13 @@ main(int argc, char *argv[])
         case 0:
             fread(zergString, sizeof(char), zergStringSize, fp);
             //Sets the extra char space to null so string is null terminated
-            
             zergString[zergStringSize] = '\0';
             printf("%s\n", zergString);
             break;
-        //Satus type
+        //Status type
         case 1:
             fread(&zerg_status, sizeof(struct zerg_status), 1, fp);
+            //Read in the name seperately because it's variable length
             fread(zergString, zergStringSize, 1, fp);
             zergString[zergStringSize] = '\0';
             printf("Name     : %s\n", zergString);
@@ -119,6 +118,7 @@ main(int argc, char *argv[])
         case 2:
             fread(&cmdNum, sizeof(cmdNum), 1, fp);
             cmdNum = ntohs(cmdNum);
+            //If the command type is an odd number there's no special parameters
             if (!cmdNum % 2)
             {
                 printf("Command  : %s\n", command[cmdNum]);
