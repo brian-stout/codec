@@ -1,8 +1,6 @@
 #include "packet.h"
 #include "binary.h"
 
-#include <stdio.h>
-
 void print_network_packets(struct pcap_packet a, struct ethernet b, struct ipv4 c, struct udp d)
 {
     printf("%x ", ntohl(a.unixEpoch));
@@ -172,7 +170,6 @@ print_preface(struct zerg zerg, int version, int type)
     printf("From     : %d\n", ntohs(zerg.srcId));
 }
 
-//TODO: Move to packet.c?
 int
 padding_check(struct pcap_packet pcap_packet, struct zerg zerg)
 {
@@ -199,10 +196,6 @@ const char *breed[] = {
 };
 
 /* TODO:
-*       1. Maybe put decode print struct functions here?
-*       2. The padding function can go here
-*       3. Write in a function that assigns the correct len data based on zerg
+*       1. Write in a function that assigns the correct len data based on zerg
 *           struct packet.
-*
-*
 */
